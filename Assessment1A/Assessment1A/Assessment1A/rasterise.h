@@ -83,11 +83,18 @@ void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, flo
 	gamma = lineABP / lineABC;
 }
 
-void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::vec3& col, float& depth, int px, int py)
+void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::vec3& col, float& depth)
 {
-	if (depth > tri.v1.pos[2])//Closer
+	if (0 <= alpha && 0 <= beta && 0 <= gamma)
 	{
-		col = tri.v1.col;
+		if (1 >= alpha && 1 >= beta && 1 >= gamma) {
+			
+			if (max({ tri.v1.pos[2], tri.v2.pos[2], tri.v3.pos[2] }) < depth)//Furthest point of triangle is closer than prev pixel depth
+			{
+				col = tri.v1.col;
+				depth = max({ tri.v1.pos[2], tri.v2.pos[2], tri.v3.pos[2] });
+			}
+		}
 	}
 }
 
@@ -104,18 +111,14 @@ void Rasterise(vector<triangle> tris)
 		for (int px = 0; px < PIXEL_W; px++)
 		{
 			for (triangle tri : tris) {
+				float cDepth = depth_buffer[py * PIXEL_W + px];
+				glm::vec3 col = glm::vec3(1.f);
 				ComputeBarycentricCoordinates(px, py, tri, alpha, beta, gamma);
-				if (0 <= alpha && 0 <= beta && 0 <= gamma)
+				ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
+				if (col == tri.v1.col)
 				{
-					if (1 >= alpha && 1 >= beta && 1 >= gamma) {
-
-						glm::vec3 col = glm::vec3(1.f);
-						ShadeFragment(tri, alpha, beta, gamma, col, depth_buffer[py * PIXEL_W + py + px], px, py);
-						if (col == tri.v1.col) {
-							depth_buffer[py * PIXEL_W + py + px] = tri.v1.pos[2];
-							writeColToDisplayBuffer(col, px, py);
-						}
-					}
+					depth_buffer[py * PIXEL_W + px] = cDepth;
+					writeColToDisplayBuffer(col,px,py);
 				}
 			}
 		}
@@ -128,12 +131,18 @@ void render(vector<triangle>& tris)
 	float col[] = { 1.f,1.f,1.f,1.f };
 	glm::mat4 projMtx = glm::mat4(1.0f);
 	glm::mat4 viewMtx = glm::mat4(1.0f);
-	glm::mat4 modelMtx = glm::mat4(1.0f);
 	//Clear the buffers
 	ClearColourBuffer(col);
 	ClearDepthBuffer();
 	//Apply transformations
-	ApplyTransformationMatrix(modelMtx, tris);
+
+	for (triangle& tri : tris) {
+		tri.v1.pos[0] = -tri.v1.pos[0];
+		tri.v2.pos[0] = -tri.v2.pos[0];
+		tri.v3.pos[0] = -tri.v3.pos[0];
+	}
+
+
 	viewMtx = glm::translate(viewMtx, glm::vec3(0.1, -2.5, -6));
 	ApplyTransformationMatrix(viewMtx, tris);
 	projMtx = glm::perspective(55.f, (float)PIXEL_W / PIXEL_H, 0.1f, 10.f);
