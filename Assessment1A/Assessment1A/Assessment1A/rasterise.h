@@ -4,14 +4,14 @@
 void ClearColourBuffer(float col[4])
 {
 	for (int i = 0; i < *(&colour_buffer + 1) - colour_buffer; i++) {
-		colour_buffer[i] = col[i%4];
+		colour_buffer[i] = 255.f;
 	}
 }
 
 void ClearDepthBuffer()
 {
 	for (int i = 0; i < *(&depth_buffer + 1) - depth_buffer; i++) {
-		depth_buffer[i] = 0.f;
+		depth_buffer[i] = INFINITY;
 	}
 }
 
@@ -70,6 +70,7 @@ void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, flo
 	glm::vec4 a = t.v1.pos;
 	glm::vec4 b = t.v2.pos;
 	glm::vec4 c = t.v3.pos;
+
 	float lineABP = (b[1] - a[1]) * px + (a[0] - b[0]) * py + b[0] * a[1] - a[0] * b[1];
 	float lineBCA = (c[1] - b[1]) * a[0] + (b[0] - c[0]) * a[1] + c[0] * b[1] - b[0] * c[1];
 	float lineACP = (c[1] - a[1]) * px + (a[0] - c[0]) * py + c[0] * a[1] - a[0] * c[1];
@@ -82,14 +83,18 @@ void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, flo
 	gamma = lineABP / lineABC;
 }
 
-void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::vec3& col, float& depth)
+void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::vec3& col, float& depth, int px, int py)
 {
-
+	if (depth > tri.v1.pos[2])//Closer
+	{
+		col = tri.v1.col;
+	}
 }
 
 
 void Rasterise(vector<triangle> tris)
 {
+	float alpha, beta, gamma;
 	for (int py = 0; py < PIXEL_H; py++)
 	{
 		float percf = (float)py / (float)PIXEL_H;
@@ -98,6 +103,21 @@ void Rasterise(vector<triangle> tris)
 
 		for (int px = 0; px < PIXEL_W; px++)
 		{
+			for (triangle tri : tris) {
+				ComputeBarycentricCoordinates(px, py, tri, alpha, beta, gamma);
+				if (0 <= alpha && 0 <= beta && 0 <= gamma)
+				{
+					if (1 >= alpha && 1 >= beta && 1 >= gamma) {
+
+						glm::vec3 col = glm::vec3(1.f);
+						ShadeFragment(tri, alpha, beta, gamma, col, depth_buffer[py * PIXEL_W + py + px], px, py);
+						if (col == tri.v1.col) {
+							depth_buffer[py * PIXEL_W + py + px] = tri.v1.pos[2];
+							writeColToDisplayBuffer(col, px, py);
+						}
+					}
+				}
+			}
 		}
 	}
 	std::clog << "\rFinish rendering.           \n";
@@ -120,7 +140,7 @@ void render(vector<triangle>& tris)
 	ApplyTransformationMatrix(projMtx, tris);
 	ApplyPerspectiveDivision(tris);
 	ApplyViewportTransformation(PIXEL_W, PIXEL_H, tris);
-
+	Rasterise(tris);
 
 
 }
