@@ -51,11 +51,23 @@ void ApplyPerspectiveDivision(vector<triangle>& tris)
 
 void ApplyViewportTransformation(int w, int h, vector<triangle>& tris)
 {
+	for (triangle& tri:tris) {
+		//v1
+		tri.v1.pos.x = (tri.v1.pos.x + 1) * (w/2.f);
+		tri.v1.pos.y = (tri.v1.pos.y + 1) * (h/2.f);
+		//v2
+		tri.v2.pos.x = (tri.v2.pos.x + 1) * (w / 2.f);
+		tri.v2.pos.y = (tri.v2.pos.y + 1) * (h / 2.f);
+		//v3
+		tri.v3.pos.x = (tri.v3.pos.x + 1) * (w / 2.f);
+		tri.v3.pos.y = (tri.v3.pos.y + 1) * (h / 2.f);
+	}
 }
 
 
 void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, float& beta, float& gamma)
 {
+
 }
 
 void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::vec3& col, float& depth)
@@ -94,7 +106,7 @@ void render(vector<triangle>& tris)
 	projMtx = glm::perspective(55.f, (float)PIXEL_W / PIXEL_H, 0.1f, 10.f);
 	ApplyTransformationMatrix(projMtx, tris);
 	ApplyPerspectiveDivision(tris);
-
+	ApplyViewportTransformation(PIXEL_W, PIXEL_H, tris);
 
 
 
