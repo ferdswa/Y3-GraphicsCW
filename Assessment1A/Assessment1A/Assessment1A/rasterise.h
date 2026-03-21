@@ -1,11 +1,18 @@
 #pragma once
+#include "do_not_edit.h"
 
 void ClearColourBuffer(float col[4])
 {
+	for (int i = 0; i < *(&colour_buffer + 1) - colour_buffer; i++) {
+		colour_buffer[i] = 1.f;
+	}
 }
 
 void ClearDepthBuffer()
 {
+	for (int i = 0; i < *(&depth_buffer + 1) - depth_buffer; i++) {
+		depth_buffer[i] = 0.f;
+	}
 }
 
 void ApplyTransformationMatrix(glm::mat4 T, vector<triangle>& tris)
@@ -47,4 +54,5 @@ void Rasterise(vector<triangle> tris)
 
 void render(vector<triangle>& tris)
 {
+	
 }
