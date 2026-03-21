@@ -29,23 +29,23 @@ void ApplyPerspectiveDivision(vector<triangle>& tris)
 	int w = 0;
 	for (triangle& tri : tris) {
 		//v1
-		w = tri.v1.pos.w;
-		tri.v1.pos.x = tri.v1.pos.x / w;
-		tri.v1.pos.y = tri.v1.pos.y / w;
-		tri.v1.pos.z = tri.v1.pos.z / w;
-		tri.v1.pos.w = tri.v1.pos.w / w;
+		w = tri.v1.pos[3];
+		tri.v1.pos[0] = tri.v1.pos[0] / w;
+		tri.v1.pos[1] = tri.v1.pos[1] / w;
+		tri.v1.pos[2] = tri.v1.pos[2] / w;
+		tri.v1.pos[3] = tri.v1.pos[3] / w;
 		//v2
-		w = tri.v2.pos.w;
-		tri.v2.pos.x = tri.v2.pos.x / w;
-		tri.v2.pos.y = tri.v2.pos.y / w;
-		tri.v2.pos.z = tri.v2.pos.z / w;
-		tri.v2.pos.w = tri.v2.pos.w / w;
+		w = tri.v2.pos[3];
+		tri.v2.pos[0] = tri.v2.pos[0] / w;
+		tri.v2.pos[1] = tri.v2.pos[1] / w;
+		tri.v2.pos[2] = tri.v2.pos[2] / w;
+		tri.v2.pos[3] = tri.v2.pos[3] / w;
 		//v3
-		w = tri.v3.pos.w;
-		tri.v3.pos.x = tri.v3.pos.x / w;
-		tri.v3.pos.y = tri.v3.pos.y / w;
-		tri.v3.pos.z = tri.v3.pos.z / w;
-		tri.v3.pos.w = tri.v3.pos.w / w;
+		w = tri.v3.pos[3];
+		tri.v3.pos[0] = tri.v3.pos[0] / w;
+		tri.v3.pos[1] = tri.v3.pos[1] / w;
+		tri.v3.pos[2] = tri.v3.pos[2] / w;
+		tri.v3.pos[3] = tri.v3.pos[3] / w;
 	}
 }
 
@@ -53,25 +53,38 @@ void ApplyViewportTransformation(int w, int h, vector<triangle>& tris)
 {
 	for (triangle& tri:tris) {
 		//v1
-		tri.v1.pos.x = (tri.v1.pos.x + 1) * (w/2.f);
-		tri.v1.pos.y = (tri.v1.pos.y + 1) * (h/2.f);
+		tri.v1.pos[0] = (tri.v1.pos[0] + 1) * (w/2.f);
+		tri.v1.pos[1] = (tri.v1.pos[1] + 1) * (h/2.f);
 		//v2
-		tri.v2.pos.x = (tri.v2.pos.x + 1) * (w / 2.f);
-		tri.v2.pos.y = (tri.v2.pos.y + 1) * (h / 2.f);
+		tri.v2.pos[0] = (tri.v2.pos[0] + 1) * (w / 2.f);
+		tri.v2.pos[1] = (tri.v2.pos[1] + 1) * (h / 2.f);
 		//v3
-		tri.v3.pos.x = (tri.v3.pos.x + 1) * (w / 2.f);
-		tri.v3.pos.y = (tri.v3.pos.y + 1) * (h / 2.f);
+		tri.v3.pos[0] = (tri.v3.pos[0] + 1) * (w / 2.f);
+		tri.v3.pos[1] = (tri.v3.pos[1] + 1) * (h / 2.f);
 	}
 }
 
 
 void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, float& beta, float& gamma)
 {
+	glm::vec4 a = t.v1.pos;
+	glm::vec4 b = t.v2.pos;
+	glm::vec4 c = t.v3.pos;
+	float lineABP = (b[1] - a[1]) * px + (a[0] - b[0]) * py + b[0] * a[1] - a[0] * b[1];
+	float lineBCA = (c[1] - b[1]) * a[0] + (b[0] - c[0]) * a[1] + c[0] * b[1] - b[0] * c[1];
+	float lineACP = (c[1] - a[1]) * px + (a[0] - c[0]) * py + c[0] * a[1] - a[0] * c[1];
+	float lineACB = (c[1] - a[1]) * b[0] + (a[0] - c[0]) * b[1] + c[0] * a[1] - a[0] * c[1];
+	float lineBCP = (c[1] - b[1]) * px + (b[0] - c[0]) * py + c[0] * b[1] - b[0] * c[1];
+	float lineABC = (b[1] - a[1]) * c[0] + (a[0] - b[0]) * c[1] + b[0] * a[1] - a[0] * b[1];
 
+	alpha = lineBCP / lineBCA;
+	beta = lineACP / lineACB;
+	gamma = lineABP / lineABC;
 }
 
 void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::vec3& col, float& depth)
 {
+
 }
 
 
