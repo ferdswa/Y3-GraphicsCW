@@ -26,7 +26,27 @@ void ApplyTransformationMatrix(glm::mat4 T, vector<triangle>& tris)//Position
 
 void ApplyPerspectiveDivision(vector<triangle>& tris)
 {
-	
+	int w = 0;
+	for (triangle& tri : tris) {
+		//v1
+		w = tri.v1.pos.w;
+		tri.v1.pos.x = tri.v1.pos.x / w;
+		tri.v1.pos.y = tri.v1.pos.y / w;
+		tri.v1.pos.z = tri.v1.pos.z / w;
+		tri.v1.pos.w = tri.v1.pos.w / w;
+		//v2
+		w = tri.v2.pos.w;
+		tri.v2.pos.x = tri.v2.pos.x / w;
+		tri.v2.pos.y = tri.v2.pos.y / w;
+		tri.v2.pos.z = tri.v2.pos.z / w;
+		tri.v2.pos.w = tri.v2.pos.w / w;
+		//v3
+		w = tri.v3.pos.w;
+		tri.v3.pos.x = tri.v3.pos.x / w;
+		tri.v3.pos.y = tri.v3.pos.y / w;
+		tri.v3.pos.z = tri.v3.pos.z / w;
+		tri.v3.pos.w = tri.v3.pos.w / w;
+	}
 }
 
 void ApplyViewportTransformation(int w, int h, vector<triangle>& tris)
@@ -73,7 +93,7 @@ void render(vector<triangle>& tris)
 	ApplyTransformationMatrix(viewMtx, tris);
 	projMtx = glm::perspective(55.f, (float)PIXEL_W / PIXEL_H, 0.1f, 10.f);
 	ApplyTransformationMatrix(projMtx, tris);
-
+	ApplyPerspectiveDivision(tris);
 
 
 
