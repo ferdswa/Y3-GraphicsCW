@@ -1,6 +1,8 @@
 #pragma once
 #include "do_not_edit.h"
 
+//Scale? 
+
 void ClearColourBuffer(float col[4])
 {
 	for (int i = 0; i < *(&colour_buffer + 1) - colour_buffer; i++) {
@@ -15,7 +17,7 @@ void ClearDepthBuffer()
 	}
 }
 
-void ApplyTransformationMatrix(glm::mat4 T, vector<triangle>& tris)//Position
+void ApplyTransformationMatrix(glm::mat4 T, vector<triangle>& tris)//Split this up
 {
 	for (triangle& tri: tris) {
 		tri.v1.pos = T * tri.v1.pos;
@@ -88,6 +90,8 @@ void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::v
 	if (0 <= alpha && 0 <= beta && 0 <= gamma)
 	{
 		if (1 >= alpha && 1 >= beta && 1 >= gamma) {
+
+			//If the furthest point on previous pixel is further than the furthest point on this triangle, render this triangle on top, otherwise, leave
 			
 			if (max({ tri.v1.pos[2], tri.v2.pos[2], tri.v3.pos[2] }) < depth)//Furthest point of triangle is closer than prev pixel depth
 			{
