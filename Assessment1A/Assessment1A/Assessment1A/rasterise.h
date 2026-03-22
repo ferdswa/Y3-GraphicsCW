@@ -17,10 +17,25 @@ void ClearDepthBuffer()
 
 void ApplyTransformationMatrix(glm::mat4 T, vector<triangle>& tris)//Position
 {
-	for (triangle& tri: tris) {
-		tri.v1.pos = T * tri.v1.pos;
-		tri.v2.pos = T * tri.v2.pos;
-		tri.v3.pos = T * tri.v3.pos;
+	glm::vec4 newPos = glm::vec4(1.f);
+	for (triangle& tri : tris) {
+		newPos = T * tri.v1.pos;
+		tri.v1.pos = newPos;
+		newPos = T * tri.v2.pos;
+		tri.v2.pos = newPos;
+		newPos = T * tri.v3.pos;
+		tri.v3.pos = newPos;
+
+
+		tri.v1.nor[0] = tri.v1.pos[0];
+		tri.v1.nor[1] = tri.v1.pos[1];
+		tri.v1.nor[2] = tri.v1.pos[2];
+		tri.v2.nor[0] = tri.v2.pos[0];
+		tri.v2.nor[1] = tri.v2.pos[1];
+		tri.v2.nor[2] = tri.v2.pos[2];
+		tri.v3.nor[0] = tri.v3.pos[0];
+		tri.v3.nor[1] = tri.v3.pos[1];
+		tri.v3.nor[2] = tri.v3.pos[2];
 	}
 }
 
@@ -46,6 +61,16 @@ void ApplyPerspectiveDivision(vector<triangle>& tris)
 		tri.v3.pos[1] = tri.v3.pos[1] / w;
 		tri.v3.pos[2] = tri.v3.pos[2] / w;
 		tri.v3.pos[3] = tri.v3.pos[3] / w;
+
+		tri.v1.nor[0] = tri.v1.pos[0];
+		tri.v1.nor[1] = tri.v1.pos[1];
+		tri.v1.nor[2] = tri.v1.pos[2];
+		tri.v2.nor[0] = tri.v2.pos[0];
+		tri.v2.nor[1] = tri.v2.pos[1];
+		tri.v2.nor[2] = tri.v2.pos[2];
+		tri.v3.nor[0] = tri.v3.pos[0];
+		tri.v3.nor[1] = tri.v3.pos[1];
+		tri.v3.nor[2] = tri.v3.pos[2];
 	}
 }
 
@@ -61,6 +86,16 @@ void ApplyViewportTransformation(int w, int h, vector<triangle>& tris)
 		//v3
 		tri.v3.pos[0] = (tri.v3.pos[0] + 1) * (w / 2.f);
 		tri.v3.pos[1] = (tri.v3.pos[1] + 1) * (h / 2.f);
+
+		tri.v1.nor[0] = tri.v1.pos[0];
+		tri.v1.nor[1] = tri.v1.pos[1];
+		tri.v1.nor[2] = tri.v1.pos[2];
+		tri.v2.nor[0] = tri.v2.pos[0];
+		tri.v2.nor[1] = tri.v2.pos[1];
+		tri.v2.nor[2] = tri.v2.pos[2];
+		tri.v3.nor[0] = tri.v3.pos[0];
+		tri.v3.nor[1] = tri.v3.pos[1];
+		tri.v3.nor[2] = tri.v3.pos[2];
 	}
 }
 
@@ -117,8 +152,8 @@ void Rasterise(vector<triangle> tris)
 				ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
 				if (col == tri.v1.col)
 				{
-					depth_buffer[py * PIXEL_W + px] = cDepth;
 					writeColToDisplayBuffer(col,px,py);
+					depth_buffer[py * PIXEL_W + px] = cDepth;
 				}
 			}
 		}
@@ -131,25 +166,22 @@ void render(vector<triangle>& tris)
 	float col[] = { 1.f,1.f,1.f,1.f };
 	glm::mat4 projMtx = glm::mat4(1.0f);
 	glm::mat4 viewMtx = glm::mat4(1.0f);
+	glm::mat4 goalMtx = glm::mat4(1.0f);
+	glm::mat4 modelMtx = glm::mat4(1.0f);
 	//Clear the buffers
 	ClearColourBuffer(col);
 	ClearDepthBuffer();
 	//Apply transformations
-
-	for (triangle& tri : tris) {
-		tri.v1.pos[0] = -tri.v1.pos[0];
-		tri.v2.pos[0] = -tri.v2.pos[0];
-		tri.v3.pos[0] = -tri.v3.pos[0];
-	}
-
-
-	viewMtx = glm::translate(viewMtx, glm::vec3(0.1, -2.5, -6));
+	modelMtx = glm::scale(modelMtx, glm::vec3(1.f, -1.f, 1.f));
+	viewMtx = glm::translate(viewMtx, glm::vec3(0.1, -2.5, -6.f));
+	projMtx = glm::perspective(glm::radians(55.f), (float)PIXEL_W / (float)PIXEL_H, 0.1f, 10.f);
+	
 	ApplyTransformationMatrix(viewMtx, tris);
-	projMtx = glm::perspective(55.f, (float)PIXEL_W / PIXEL_H, 0.1f, 10.f);
 	ApplyTransformationMatrix(projMtx, tris);
+	ApplyTransformationMatrix(modelMtx, tris);
+
 	ApplyPerspectiveDivision(tris);
 	ApplyViewportTransformation(PIXEL_W, PIXEL_H, tris);
 	Rasterise(tris);
-
 
 }
