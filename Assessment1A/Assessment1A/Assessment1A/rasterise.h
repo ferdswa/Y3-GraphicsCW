@@ -80,8 +80,8 @@ void ApplyViewportTransformation(int w, int h, vector<triangle>& tris)
 {
 	for (triangle& tri:tris) {
 		//v1
-		tri.v1.pos[0] = (tri.v1.pos[0] + 1) * (w/2.f);
-		tri.v1.pos[1] = (tri.v1.pos[1] + 1) * (h/2.f);
+		tri.v1.pos.x = (tri.v1.pos.x + 1) * (w/2.f);
+		tri.v1.pos.y = (tri.v1.pos.y + 1) * (h/2.f);
 		//v2
 		tri.v2.pos[0] = (tri.v2.pos[0] + 1) * (w / 2.f);
 		tri.v2.pos[1] = (tri.v2.pos[1] + 1) * (h / 2.f);
@@ -128,10 +128,10 @@ void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::v
 
 			//If the furthest point on previous pixel is further than the furthest point on this triangle, render this triangle on top, otherwise, leave
 			
-			if (max({ tri.v1.pos[2], tri.v2.pos[2], tri.v3.pos[2] }) < depth)//Furthest point of triangle is closer than prev pixel depth
+			if (min({ tri.v1.pos[2], tri.v2.pos[2], tri.v3.pos[2] }) < depth)//Furthest point of triangle is closer than prev pixel depth
 			{
 				col = tri.v1.col;
-				depth = max({ tri.v1.pos[2], tri.v2.pos[2], tri.v3.pos[2] });
+				depth = min({ tri.v1.pos[2], tri.v2.pos[2], tri.v3.pos[2] });
 			}
 		}
 	}
