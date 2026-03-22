@@ -138,12 +138,16 @@ void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::v
 			//	col = tri.v1.col;
 			//	depth = max({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
 			//}
+			
+			//TODO: IF YOU DONT DO IT TONIGHT, LOOK AT WIKIPEDIA BARYCENTRIC COORDINATES! FORMULA THERE
 
-			if (min({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z }) < depth)//Closest point of triangle is closer than prev pixel depth
+			if (min({ z1,z2,z3 }) < depth)//Closest point of triangle is closer than prev pixel depth
 			{
-				col = tri.v1.col;
-				depth = min({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
+					col = tri.v1.col;
+					depth = min({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
 			}
+			//if furthest closer -> continue to render, new depth = depth of furthest
+			//if closest closer -> continue to render, new depth = depth of closest
 		}
 	}
 }
