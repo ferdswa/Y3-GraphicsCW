@@ -1,3 +1,0 @@
-﻿  ImageCompare.cpp
-C:\Users\pszks\Desktop\COMP3011\2025-26\Assessments\ImageCompare\ImageCompare\ImageCompare.cpp(78,19): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-  ImageCompare.vcxproj -> C:\Users\pszks\Desktop\COMP3011\2025-26\Assessments\ImageCompare\x64\Debug\ImageCompare.exe
