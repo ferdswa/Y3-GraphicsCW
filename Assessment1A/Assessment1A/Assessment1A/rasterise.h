@@ -19,25 +19,10 @@ void ClearDepthBuffer()
 
 void ApplyTransformationMatrix(glm::mat4 T, vector<triangle>& tris)//Split this up
 {
-	glm::vec4 newPos = glm::vec4(1.f);
 	for (triangle& tri : tris) {
-		newPos = T * tri.v1.pos;
-		tri.v1.pos = newPos;
-		newPos = T * tri.v2.pos;
-		tri.v2.pos = newPos;
-		newPos = T * tri.v3.pos;
-		tri.v3.pos = newPos;
-
-
-		tri.v1.nor.x = tri.v1.pos.x;
-		tri.v1.nor.y = tri.v1.pos.y;
-		tri.v1.nor.z = tri.v1.pos.z;
-		tri.v2.nor.x = tri.v2.pos.x;
-		tri.v2.nor.y = tri.v2.pos.y;
-		tri.v2.nor.z = tri.v2.pos.z;
-		tri.v3.nor.x = tri.v3.pos.x;
-		tri.v3.nor.y = tri.v3.pos.y;
-		tri.v3.nor.z = tri.v3.pos.z;
+		tri.v1.pos = T * tri.v1.pos;
+		tri.v2.pos = T * tri.v2.pos;
+		tri.v3.pos = T * tri.v3.pos;
 	}
 }
 
@@ -63,16 +48,6 @@ void ApplyPerspectiveDivision(vector<triangle>& tris)
 		tri.v3.pos.y = tri.v3.pos.y / w;
 		tri.v3.pos.z = tri.v3.pos.z / w;
 		tri.v3.pos.w = tri.v3.pos.w / w;
-
-		tri.v1.nor.x = tri.v1.pos.x;
-		tri.v1.nor.y = tri.v1.pos.y;
-		tri.v1.nor.z = tri.v1.pos.z;
-		tri.v2.nor.x = tri.v2.pos.x;
-		tri.v2.nor.y = tri.v2.pos.y;
-		tri.v2.nor.z = tri.v2.pos.z;
-		tri.v3.nor.x = tri.v3.pos.x;
-		tri.v3.nor.y = tri.v3.pos.y;
-		tri.v3.nor.z = tri.v3.pos.z;
 	}
 }
 
@@ -80,24 +55,14 @@ void ApplyViewportTransformation(int w, int h, vector<triangle>& tris)
 {
 	for (triangle& tri:tris) {
 		//v1
-		tri.v1.pos.x = (tri.v1.pos.x + 1) * (w/2.f);
-		tri.v1.pos.y = (tri.v1.pos.y + 1) * (h/2.f);
+		tri.v1.pos.x = (tri.v1.pos.x + 1) * (w/2);
+		tri.v1.pos.y = (tri.v1.pos.y + 1) * (h/2);
 		//v2
-		tri.v2.pos.x = (tri.v2.pos.x + 1) * (w / 2.f);
-		tri.v2.pos.y = (tri.v2.pos.y + 1) * (h / 2.f);
+		tri.v2.pos.x = (tri.v2.pos.x + 1) * (w / 2);
+		tri.v2.pos.y = (tri.v2.pos.y + 1) * (h / 2);
 		//v3
-		tri.v3.pos.x = (tri.v3.pos.x + 1) * (w / 2.f);
-		tri.v3.pos.y = (tri.v3.pos.y + 1) * (h / 2.f);
-
-		tri.v1.nor.x = tri.v1.pos.x;
-		tri.v1.nor.y = tri.v1.pos.y;
-		tri.v1.nor.z = tri.v1.pos.z;
-		tri.v2.nor.x = tri.v2.pos.x;
-		tri.v2.nor.y = tri.v2.pos.y;
-		tri.v2.nor.z = tri.v2.pos.z;
-		tri.v3.nor.x = tri.v3.pos.x;
-		tri.v3.nor.y = tri.v3.pos.y;
-		tri.v3.nor.z = tri.v3.pos.z;
+		tri.v3.pos.x = (tri.v3.pos.x + 1) * (w / 2);
+		tri.v3.pos.y = (tri.v3.pos.y + 1) * (h / 2);
 	}
 }
 
@@ -120,36 +85,42 @@ void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, flo
 	gamma = lineABP / lineABC;
 }
 
-void ShadeFragment(triangle tri, float& alpha, float& beta, float& gamma, glm::vec3& col, float& depth)
+void ShadeFragment(triangle tri, float alpha, float beta, float gamma, glm::vec3& col, float& depth)
 {
-	float z1, z2, z3;
-	if (0 <= alpha && 0 <= beta && 0 <= gamma)
-	{
-		if (1 >= alpha && 1 >= beta && 1 >= gamma) {
-
-			//If the furthest point on previous pixel is further than the furthest point on this triangle, render this triangle on top, otherwise, leave
+		float z1, z2, z3, zp;
+		//If the furthest point on previous pixel is further than the furthest point on this triangle, render this triangle on top, otherwise, leave
 			
 
-			z1 = tri.v1.pos.z;
-			z2 = tri.v2.pos.z;
-			z3 = tri.v3.pos.z;
+		z1 = tri.v1.pos.z;
+		z2 = tri.v2.pos.z;
+		z3 = tri.v3.pos.z;
 
-			//if (z1 < depth || z2 < depth || z3 < depth) {
-			//	col = tri.v1.col;
-			//	depth = max({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
-			//}
-			
-			//TODO: IF YOU DONT DO IT TONIGHT, LOOK AT WIKIPEDIA BARYCENTRIC COORDINATES! FORMULA THERE
+		//TODO: IF YOU DONT DO IT TONIGHT, LOOK AT WIKIPEDIA BARYCENTRIC COORDINATES! FORMULA THERE
 
-			if (min({ z1,z2,z3 }) < depth)//Closest point of triangle is closer than prev pixel depth
-			{
-					col = tri.v1.col;
-					depth = min({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
-			}
-			//if furthest closer -> continue to render, new depth = depth of furthest
-			//if closest closer -> continue to render, new depth = depth of closest
+		zp = alpha * z1+ beta * z2 + gamma * z3;
+
+
+		if (zp < depth) {
+			col = tri.v1.col;
+			depth = zp;
 		}
-	}
+
+
+		// old code @ ?%
+		//if (z1 < depth || z2 < depth || z3 < depth) {
+		//	col = tri.v1.col;
+		//	depth = max({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
+		//}
+			
+		/* Old code @ 77%
+		if (min({ z1,z2,z3 }) < depth)//Closest point of triangle is closer than prev pixel depth
+		{
+				col = tri.v1.col;
+				depth = min({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
+		}
+		*/
+		//if furthest closer -> continue to render, new depth = depth of furthest
+		//if closest closer -> continue to render, new depth = depth of closest
 }
 
 
@@ -170,10 +141,19 @@ void Rasterise(vector<triangle> tris)
 				cDepth = depth_buffer[py * PIXEL_W + px];
 				
 				ComputeBarycentricCoordinates(px, py, tri, alpha, beta, gamma);
-				ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
-				if (col == tri.v1.col)
+				/*float sumBarys = alpha + beta + gamma;
+				alpha = alpha / sumBarys; beta = beta / sumBarys; gamma = gamma / sumBarys;*/
+				if (0 <= alpha && 0 <= beta && 0 <= gamma)
 				{
-					depth_buffer[py * PIXEL_W + px] = cDepth;
+					if (1 >= alpha && 1 >= beta && 1 >= gamma) {
+						/*if (alpha + beta + gamma == 1) {*/
+							ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
+							if (col == tri.v1.col)
+							{
+								depth_buffer[py * PIXEL_W + px] = cDepth;
+							}
+						//}
+					}
 				}
 			}
 			writeColToDisplayBuffer(col, px, py);
@@ -193,13 +173,17 @@ void render(vector<triangle>& tris)
 	ClearColourBuffer(col);
 	ClearDepthBuffer();
 	//Apply transformations
-	modelMtx = glm::scale(modelMtx, glm::vec3(1.f, -1.f, 1.f));
-	viewMtx = glm::translate(viewMtx, glm::vec3(0.1, -2.5, -6));
-	projMtx = glm::perspective(glm::radians(55.f), (float)PIXEL_W / (float)PIXEL_H, 0.1f, 10.f);
+	for (triangle& tri : tris) {
+		tri.v1.pos = modelMtx * glm::vec4(-1.f, 1.f, -1.f, 1.f) * tri.v1.pos;
+		tri.v2.pos = modelMtx * glm::vec4(-1.f, 1.f, -1.f, 1.f) * tri.v2.pos;
+		tri.v3.pos = modelMtx * glm::vec4(-1.f, 1.f, -1.f, 1.f) * tri.v3.pos;
+	}
+	viewMtx = glm::translate(viewMtx, glm::vec3(-0.1, -2.5, 6));
+	projMtx = glm::perspective(glm::radians(57.f), (float)PIXEL_W / (float)PIXEL_H, 0.1f, 10.f);
 	
+	ApplyTransformationMatrix(modelMtx, tris);
 	ApplyTransformationMatrix(viewMtx, tris);
 	ApplyTransformationMatrix(projMtx, tris);
-	ApplyTransformationMatrix(modelMtx, tris);
 
 	ApplyPerspectiveDivision(tris);
 	ApplyViewportTransformation(PIXEL_W, PIXEL_H, tris);
