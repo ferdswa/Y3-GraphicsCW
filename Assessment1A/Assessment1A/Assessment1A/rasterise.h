@@ -85,20 +85,17 @@ void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, flo
 	gamma = lineABP / lineABC;
 }
 
-void ShadeFragment(triangle& tri, float alpha, float beta, float gamma, glm::vec3& col, float& depth)
+void ShadeFragment(triangle tri, float alpha, float beta, float gamma, glm::vec3& col, float& depth)
 {
-	FILE* fptr;
 	float z1, z2, z3, zp;
 			
-
 	z1 = tri.v1.pos.z;
 	z2 = tri.v2.pos.z;
 	z3 = tri.v3.pos.z;
 
-	zp = alpha * z1 + beta * z2 + gamma * z3;
+	zp = alpha * z1 + beta * z2 + gamma * z3 / alpha+gamma+beta;
 
-
-	if (zp > depth) {
+	if (zp >= depth) {
 		col = tri.v1.col;
 		depth = zp;
 	}
@@ -122,15 +119,11 @@ void Rasterise(vector<triangle> tris)
 				cDepth = depth_buffer[py * PIXEL_W + px];
 				
 				ComputeBarycentricCoordinates(px, py, tri, alpha, beta, gamma);
-				if (0 <= alpha && 0 <= beta && 0 <= gamma)
+				if ((0 <= alpha && 0 <= beta && 0 <= gamma) && (1 >= alpha && 1 >= beta && 1 >= gamma))
 				{
-					if (1 >= alpha && 1 >= beta && 1 >= gamma) {
-						ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
-						if (col == tri.v1.col)
-						{
-							depth_buffer[py * PIXEL_W + px] = cDepth;
-						}
-					}
+					ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
+					if (col == tri.v1.col)
+						depth_buffer[py * PIXEL_W + px] = cDepth;
 				}
 			}
 			writeColToDisplayBuffer(col, px, py);
