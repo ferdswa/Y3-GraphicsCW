@@ -150,9 +150,12 @@ void render(vector<triangle>& tris)
 	}
 	viewMtx = glm::translate(viewMtx, glm::vec3(-0.1, -2.5, 6));
 	projMtx = glm::perspective(glm::radians(57.f), (float)PIXEL_W / (float)PIXEL_H, 0.1f, 10.f);
+	goalMtx = glm::scale(goalMtx, glm::vec3(1, 1, 1.2));
 	
 	ApplyTransformationMatrix(viewMtx, tris);
+	ApplyTransformationMatrix(goalMtx, tris);
 	ApplyTransformationMatrix(projMtx, tris);
+	
 
 	ApplyPerspectiveDivision(tris);
 	ApplyViewportTransformation(PIXEL_W, PIXEL_H, tris);
