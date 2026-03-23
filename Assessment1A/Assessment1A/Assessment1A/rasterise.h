@@ -13,7 +13,7 @@ void ClearColourBuffer(float col[4])
 void ClearDepthBuffer()
 {
 	for (int i = 0; i < *(&depth_buffer + 1) - depth_buffer; i++) {
-		depth_buffer[i] = 0;
+		depth_buffer[i] = FLT_MAX;
 	}
 }
 
@@ -95,10 +95,8 @@ void ShadeFragment(triangle tri, float alpha, float beta, float gamma, glm::vec3
 
 	zp = alpha * z1 + beta * z2 + gamma * z3 / alpha+gamma+beta;
 
-	if (zp >= depth) {
-		col = tri.v1.col;
-		depth = zp;
-	}
+	col = tri.v1.col;
+	depth = zp;
 }
 
 
@@ -122,11 +120,13 @@ void Rasterise(vector<triangle> tris)
 				if ((0 <= alpha && 0 <= beta && 0 <= gamma) && (1 >= alpha && 1 >= beta && 1 >= gamma))
 				{
 					ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
-					if (col == tri.v1.col)
+					if (cDepth < depth_buffer[py * PIXEL_W + px]) {
+						writeColToDisplayBuffer(col, px, py);
 						depth_buffer[py * PIXEL_W + px] = cDepth;
+					}
 				}
 			}
-			writeColToDisplayBuffer(col, px, py);
+			
 		}
 	}
 	std::clog << "\rFinish rendering.           \n";
@@ -151,7 +151,6 @@ void render(vector<triangle>& tris)
 	viewMtx = glm::translate(viewMtx, glm::vec3(-0.1, -2.5, 6));
 	projMtx = glm::perspective(glm::radians(57.f), (float)PIXEL_W / (float)PIXEL_H, 0.1f, 10.f);
 	
-	ApplyTransformationMatrix(modelMtx, tris);
 	ApplyTransformationMatrix(viewMtx, tris);
 	ApplyTransformationMatrix(projMtx, tris);
 
