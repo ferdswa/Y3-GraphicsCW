@@ -13,7 +13,7 @@ void ClearColourBuffer(float col[4])
 void ClearDepthBuffer()
 {
 	for (int i = 0; i < *(&depth_buffer + 1) - depth_buffer; i++) {
-		depth_buffer[i] = INFINITY;
+		depth_buffer[i] = 0;
 	}
 }
 
@@ -85,42 +85,23 @@ void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, flo
 	gamma = lineABP / lineABC;
 }
 
-void ShadeFragment(triangle tri, float alpha, float beta, float gamma, glm::vec3& col, float& depth)
+void ShadeFragment(triangle& tri, float alpha, float beta, float gamma, glm::vec3& col, float& depth)
 {
-		float z1, z2, z3, zp;
-		//If the furthest point on previous pixel is further than the furthest point on this triangle, render this triangle on top, otherwise, leave
+	FILE* fptr;
+	float z1, z2, z3, zp;
 			
 
-		z1 = tri.v1.pos.z;
-		z2 = tri.v2.pos.z;
-		z3 = tri.v3.pos.z;
+	z1 = tri.v1.pos.z;
+	z2 = tri.v2.pos.z;
+	z3 = tri.v3.pos.z;
 
-		//TODO: IF YOU DONT DO IT TONIGHT, LOOK AT WIKIPEDIA BARYCENTRIC COORDINATES! FORMULA THERE
-
-		zp = alpha * z1+ beta * z2 + gamma * z3;
+	zp = alpha * z1 + beta * z2 + gamma * z3;
 
 
-		if (zp < depth) {
-			col = tri.v1.col;
-			depth = zp;
-		}
-
-
-		// old code @ ?%
-		//if (z1 < depth || z2 < depth || z3 < depth) {
-		//	col = tri.v1.col;
-		//	depth = max({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
-		//}
-			
-		/* Old code @ 77%
-		if (min({ z1,z2,z3 }) < depth)//Closest point of triangle is closer than prev pixel depth
-		{
-				col = tri.v1.col;
-				depth = min({ tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z });
-		}
-		*/
-		//if furthest closer -> continue to render, new depth = depth of furthest
-		//if closest closer -> continue to render, new depth = depth of closest
+	if (zp > depth) {
+		col = tri.v1.col;
+		depth = zp;
+	}
 }
 
 
@@ -133,7 +114,7 @@ void Rasterise(vector<triangle> tris)
 		float percf = (float)py / (float)PIXEL_H;
 		int perci = percf * 100;
 		std::clog << "\rScanlines done: " << perci << "%" << ' ' << std::flush;
-
+		
 		for (int px = 0; px < PIXEL_W; px++)
 		{
 			glm::vec3 col = glm::vec3(1.f);
@@ -141,18 +122,14 @@ void Rasterise(vector<triangle> tris)
 				cDepth = depth_buffer[py * PIXEL_W + px];
 				
 				ComputeBarycentricCoordinates(px, py, tri, alpha, beta, gamma);
-				/*float sumBarys = alpha + beta + gamma;
-				alpha = alpha / sumBarys; beta = beta / sumBarys; gamma = gamma / sumBarys;*/
 				if (0 <= alpha && 0 <= beta && 0 <= gamma)
 				{
 					if (1 >= alpha && 1 >= beta && 1 >= gamma) {
-						/*if (alpha + beta + gamma == 1) {*/
-							ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
-							if (col == tri.v1.col)
-							{
-								depth_buffer[py * PIXEL_W + px] = cDepth;
-							}
-						//}
+						ShadeFragment(tri, alpha, beta, gamma, col, cDepth);
+						if (col == tri.v1.col)
+						{
+							depth_buffer[py * PIXEL_W + px] = cDepth;
+						}
 					}
 				}
 			}
