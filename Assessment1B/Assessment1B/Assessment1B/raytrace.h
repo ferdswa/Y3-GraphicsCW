@@ -15,7 +15,7 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 bool PointInTriangle(glm::vec3 pt, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
 {
     float d1, d2, d3;
-    vec3 v1q, v2q, v3q, v12, v13, v23, v21, v32, v31;
+    vec3 v1q, v2q, v3q, v12, v13, v23, v21, v32, v31, crossLeft, crossRight;
     //Calculate relative vectors
     v1q = pt - v1;
     v2q = pt - v2;
@@ -27,8 +27,20 @@ bool PointInTriangle(glm::vec3 pt, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
     v32 = v2 - v3;
     v31 = v1 - v3;
 
+    crossLeft = cross(v12, v1q);
+    crossRight = cross(v12, v13);
+    d1 = dot(crossLeft, crossRight);
 
+    crossLeft = cross(v23, v2q);
+    crossRight = cross(v23, v21);
+    d2 = dot(crossLeft, crossRight);
 
+    crossLeft = cross(v31, v3q);
+    crossRight = cross(v31, v32);
+    d3 = dot(crossLeft, crossRight);
+
+    if (d1 > 0 && d2 > 0 && d3 > 0)
+        return true;
     return false;
 }
 
