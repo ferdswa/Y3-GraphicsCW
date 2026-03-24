@@ -28,7 +28,30 @@ void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, c
 
 vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float fov)
 {
-    return vec3();
+    vec3 d, id;
+    vec3 rVec = vec3(1, 0, 0), uVec = vec3(0, -1, 0), fVec = vec3(0, 0, -1);
+    float coefficient, c1, f;
+
+    //Calculate coefficient of R term and multiply with R
+    f = tan(fov / 2);
+    coefficient = aspect_ratio * f;
+    c1 = 2 * (px + 0.5);
+    c1 = c1 / W;
+    c1 = c1 - 1;
+    coefficient = coefficient * c1;
+    d = coefficient * rVec;
+    //Calculate coefficient of U term and multiply
+    c1 = 2 * (py + 0.5);
+    c1 = c1 / H;
+    c1 = c1 - 1;
+    coefficient = f * c1;
+    id = coefficient * uVec;
+    //Add terms
+    d = d + id + fVec;
+    //d = normalize(d); unsure if needed here or later
+
+
+    return d;
 }
 
 void raytrace()
