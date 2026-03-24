@@ -17,13 +17,22 @@ bool PointInTriangle(glm::vec3 pt, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
     return false;
 }
 
-float RayTriangleIntersection(glm::vec3 o, glm::vec3 dir, triangle* tri, glm::vec3& point)
+float RayTriangleIntersection(glm::vec3 o, glm::vec3 dir, triangle* tri, glm::vec3& point)//Could be wrong
 {
-    return FLT_MAX;
+    vec3 knownPointSubOrigin = tri->v1.pos - o;
+    vec3 vo3 = tri->v3.pos - o;
+    vec3 vo2 = tri->v2.pos - o;
+    vec3 res = normalize(cross(vo2, vo3));
+    float resF = dot(knownPointSubOrigin, res);
+    float denom = dot(dir, res);
+    float t = resF / denom;
+
+    return t;
 }
 
 void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, closest_hit p_hit)
 {
+
 }
 
 vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float fov)
@@ -48,7 +57,7 @@ vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float
     id = coefficient * uVec;
     //Add terms
     d = d + id + fVec;
-    //d = normalize(d); unsure if needed here or later
+    d = normalize(d);// unsure if needed here or later
 
 
     return d;
@@ -66,7 +75,7 @@ void raytrace()
         for (int pixel_x = 0; pixel_x < PIXEL_W; ++pixel_x)
         {
             ray = GetRayDirection(pixel_x, pixel_y, PIXEL_W, PIXEL_H, (float)PIXEL_W / (float)PIXEL_H, radians(90.f));
-            //trace(ray, , , &col, , )
+            //trace(vec3(1,-1,-1), ray, , &col, , )
         }
     }
     std::clog << "\rFinish rendering.           \n";
