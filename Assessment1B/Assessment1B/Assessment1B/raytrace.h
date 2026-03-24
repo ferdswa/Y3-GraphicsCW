@@ -33,6 +33,7 @@ vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float
 
 void raytrace()
 {
+    vec3 ray, col;
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
         float percf = (float)pixel_y / (float)PIXEL_H;
@@ -41,6 +42,8 @@ void raytrace()
 
         for (int pixel_x = 0; pixel_x < PIXEL_W; ++pixel_x)
         {
+            ray = GetRayDirection(pixel_x, pixel_y, PIXEL_W, PIXEL_H, (float)PIXEL_W / (float)PIXEL_H, radians(90.f));
+            //trace(ray, , , &col, , )
         }
     }
     std::clog << "\rFinish rendering.           \n";
