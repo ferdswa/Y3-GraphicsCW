@@ -145,7 +145,6 @@ void render(vector<triangle>& tris)
 	float col[] = { 1.f,1.f,1.f,1.f };
 	glm::mat4 projMtx = glm::mat4(1.0f);
 	glm::mat4 viewMtx = glm::mat4(1.0f);
-	glm::mat4 goalMtx = glm::mat4(1.0f);
 	glm::mat4 modelMtx = glm::mat4(1.0f);
 	//Clear the buffers
 	ClearColourBuffer(col);
