@@ -1,6 +1,5 @@
 #pragma once
 
-
 glm::vec3 DoNothing(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 {
     return vec3(0);
@@ -8,12 +7,30 @@ glm::vec3 DoNothing(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 
 glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 {
-    vec3 col = vec3(0);
+    printf("\nbegin shade");
+    vec3 col = tri->v1.col * vec3(0.1,0.1,0.1), idiff;
+    float t, diffuse;
+    //Only 1 light, no need for for loop
+    //Get dir for ray to l
+    vec3 dirRtoL = light_pos - p;
+    dirRtoL = normalize(dirRtoL);
+    // change trace(light_pos, dirRtoL, t, col, depth, Shade);
+    if (t != 0 && t != INFINITY) {
+        //compute diffuse
+        idiff = tri->v1.nor * dirRtoL;
+        diffuse = dot(idiff, col);
+        col = diffuse * col;
+    }
+    else {
+        col = col + DoNothing(tri, depth, p, dir);
+    }
+    printf("\nend shade");
     return col;
 }
 
 bool PointInTriangle(glm::vec3 pt, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
 {
+    printf("\nbegin PIT check");
     float d1, d2, d3;
     vec3 v1q, v2q, v3q, v12, v13, v23, v21, v32, v31, crossLeft, crossRight;
     //Calculate relative vectors
@@ -39,31 +56,52 @@ bool PointInTriangle(glm::vec3 pt, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
     crossRight = cross(v31, v32);
     d3 = dot(crossLeft, crossRight);
 
-    if (d1 > 0 && d2 > 0 && d3 > 0)
+    if (d1 > 0 && d2 > 0 && d3 > 0) {
+        printf("\nend PIT check");
         return true;
+    }
+    printf("\nend PIT check");
     return false;
 }
 
 float RayTriangleIntersection(glm::vec3 o, glm::vec3 dir, triangle* tri, glm::vec3& point)//Could be wrong
 {
     vec3 knownPointSubOrigin = tri->v1.pos - o;
-    vec3 vo3 = tri->v3.pos - o;
-    vec3 vo2 = tri->v2.pos - o;
-    vec3 res = normalize(cross(vo2, vo3));
+    vec3 v13 = tri->v3.pos - tri->v1.pos;
+    vec3 v12 = tri->v2.pos - tri->v1.pos;
+    vec3 res = normalize(cross(v12, v13));
     float resF = dot(knownPointSubOrigin, res);
     float denom = dot(dir, res);
     float t = resF / denom;
-
+    
+    //Calc q
+    vec3 dt = dir * t;
+    point = o + dt;
+    printf("\nend Intersect check");
     return t;
 }
 
 void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, closest_hit p_hit)
 {
-
+    printf("\nbefore ray trace 2");
+    triangle closest = triangle();
+    vec3 vtiPt = vec3();
+    for (triangle tri : tris) {
+        t = RayTriangleIntersection(o, dir, &tri, vtiPt);
+        if (PointInTriangle(vtiPt, tri.v1.pos, tri.v2.pos, tri.v3.pos)) {
+            if (t < depth) {
+                depth = t;
+                closest = tri;
+            }
+        }
+    }
+    io_col = p_hit(&closest, depth, vtiPt, dir);
+    printf("\n after ray trace 2");
 }
 
 vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float fov)
 {
+    printf("\nbegin ray dir");
     vec3 d, id;
     vec3 rVec = vec3(1, 0, 0), uVec = vec3(0, -1, 0), fVec = vec3(0, 0, -1);
     float coefficient, c1, f;
@@ -86,13 +124,14 @@ vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float
     d = d + id + fVec;
     d = normalize(d);// unsure if needed here or later
 
-
+    printf("\end ray dir");
     return d;
 }
 
 void raytrace()
 {
-    vec3 ray, col;
+    vec3 ray, col = bkgd, point;
+    float t;
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
         float percf = (float)pixel_y / (float)PIXEL_H;
@@ -101,8 +140,12 @@ void raytrace()
 
         for (int pixel_x = 0; pixel_x < PIXEL_W; ++pixel_x)
         {
+            
             ray = GetRayDirection(pixel_x, pixel_y, PIXEL_W, PIXEL_H, (float)PIXEL_W / (float)PIXEL_H, radians(90.f));
-            //trace(vec3(1,-1,-1), ray, , &col, , )
+            printf("before ray trace");
+            trace(eye, ray, t, col, INT_MAX, Shade);
+            printf("before write col");
+            writeCol(col, pixel_x, pixel_y);
         }
     }
     std::clog << "\rFinish rendering.           \n";
