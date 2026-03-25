@@ -57,40 +57,24 @@ float RayTriangleIntersection(glm::vec3 o, glm::vec3 dir, triangle* tri, glm::ve
 
 glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 {
-    vec3 col = tri->v1.col, idiff;
-    float t, diffuse, amb = 0.1;
+    vec3 col = tri->v1.col, diffuse;
+    float t=FLT_MAX, amb = 0.1, idiff, colBuild = amb;
 
-    col = amb * col;
+    
     //Only 1 light, no need for for loop
     //Get dir for ray to l
     vec3 dirRtoL = light_pos - p;
     dirRtoL = normalize(dirRtoL);
     trace(p, dirRtoL, t, col, INT_MAX, Shade);
-    //if (t == INT_MIN) {//We hit nothing
-    //    idiff = tri->v1.nor * dirRtoL;
-    //    diffuse = dot(col,idiff);
-    //    printf("%f\n",diffuse);
-    //    col = col + diffuse;
-    //}
-
-    //for (triangle tri0 : tris) {
-    //    toLIntersectP = vec3(0, 0, 0);
-    //    //printf("%f, %f, %f\n", dirRtoL.x, dirRtoL.y, dirRtoL.z);
-    //    if (&tri0 != tri) {
-    //        trace()
-    //        t = RayTriangleIntersection(p, dirRtoL, &tri0, toLIntersectP);//In plane
-    //        if (0<t<FLT_MAX)//If the vector exists, there is an intersection
-    //        {
-    //            intersects = true;
-    //            break;//now shadow, no need to check remaining tris
-    //        }
-    //    }
-    //}
-    //if (!intersects) {
-    //    idiff = tri->v1.nor * dirRtoL;
-    //    diffuse = idiff * col;
-    //    col = col + diffuse;
-    //}
+    //Get rid of everything below until return for unlit
+    if (t == INT_MIN) {//Inverted vs trace()
+        col = col * amb;
+    }
+    else {//Open
+        idiff = dot(tri->v1.nor, dirRtoL);
+        diffuse = col * idiff;
+        col = col + (tri->v1.col * amb) + diffuse;
+    }
     if (tri->reflect) {//TODO: ADD REFLECT
 
     }
@@ -156,7 +140,7 @@ vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float
 void raytrace()
 {
     vec3 ray, col = bkgd, point;
-    light_pos = light_pos * vec3( - 1);
+    light_pos = light_pos * vec3( 1, 1, 1);
     float t;
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
