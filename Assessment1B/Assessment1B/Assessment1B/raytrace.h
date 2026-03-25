@@ -40,7 +40,7 @@ bool PointInTriangle(glm::vec3 pt, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
 
 float RayTriangleIntersection(glm::vec3 o, glm::vec3 dir, triangle* tri, glm::vec3& point)//Could be wrong
 {
-    float t = 0;
+    float t = FLT_MAX;
     vec3 knownPointSubOrigin = tri->v1.pos - o;
     vec3 v13 = tri->v3.pos - tri->v1.pos;
     vec3 v12 = tri->v2.pos - tri->v1.pos;
@@ -65,24 +65,26 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
     //Get dir for ray to l
     vec3 dirRtoL = light_pos - p;
     vec3 toLIntersectP = vec3(0, 0, 0);
+    bool intersects = false;
     for (triangle tri0 : tris) {
+        toLIntersectP = vec3(0, 0, 0);
         if (&tri0 != tri) {
             t = RayTriangleIntersection(p, dirRtoL, &tri0, toLIntersectP);
-            //trace(p, dirRtoL, t, col, 0, DoNothing);
-            if (PointInTriangle(toLIntersectP, tri0.v1.pos, tri0.v2.pos, tri0.v3.pos)) {
-                idiff = tri->v1.nor * dirRtoL;
-                diffuse = dot(idiff, col);
-                col = col + diffuse;
-            }
-            else {
-                col = col + DoNothing(tri, depth, p, dir);
+            if (toLIntersectP != vec3(0, 0, 0))//If the vector exists, there is an intersection
+            {
+                intersects = true;
+                break;//now shadow, no need to check remaining tris
             }
         }
     }
-    if (tri->reflect) {
+    if (!intersects) {
+        idiff = tri->v1.nor * dirRtoL;
+        diffuse = dot(idiff, col);
+        col = col + diffuse;
+    }
+    if (tri->reflect) {//TODO: ADD REFLECT
 
     }
-    //TODO: ADD REFLECT
     return col;
 }
 
@@ -136,8 +138,7 @@ vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float
 void raytrace()
 {
     vec3 ray, col = bkgd, point;
-    light_pos = light_pos - eye;
-    light_pos = light_pos * vec3(-1, 1, -1);
+    light_pos = light_pos * vec3(1, 1, 1);
     float t;
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
