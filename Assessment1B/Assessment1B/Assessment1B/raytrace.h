@@ -64,24 +64,33 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
     //Only 1 light, no need for for loop
     //Get dir for ray to l
     vec3 dirRtoL = light_pos - p;
-    vec3 toLIntersectP = vec3(0, 0, 0);
-    bool intersects = false;
-    for (triangle tri0 : tris) {
-        toLIntersectP = vec3(0, 0, 0);
-        if (&tri0 != tri) {
-            t = RayTriangleIntersection(p, dirRtoL, &tri0, toLIntersectP);
-            if (toLIntersectP != vec3(0, 0, 0))//If the vector exists, there is an intersection
-            {
-                intersects = true;
-                break;//now shadow, no need to check remaining tris
-            }
-        }
-    }
-    if (!intersects) {
-        idiff = tri->v1.nor * dirRtoL;
-        diffuse = dot(idiff, col);
-        col = col + diffuse;
-    }
+    dirRtoL = normalize(dirRtoL);
+    trace(p, dirRtoL, t, col, INT_MAX, Shade);
+    //if (t == INT_MIN) {//We hit nothing
+    //    idiff = tri->v1.nor * dirRtoL;
+    //    diffuse = dot(col,idiff);
+    //    printf("%f\n",diffuse);
+    //    col = col + diffuse;
+    //}
+
+    //for (triangle tri0 : tris) {
+    //    toLIntersectP = vec3(0, 0, 0);
+    //    //printf("%f, %f, %f\n", dirRtoL.x, dirRtoL.y, dirRtoL.z);
+    //    if (&tri0 != tri) {
+    //        trace()
+    //        t = RayTriangleIntersection(p, dirRtoL, &tri0, toLIntersectP);//In plane
+    //        if (0<t<FLT_MAX)//If the vector exists, there is an intersection
+    //        {
+    //            intersects = true;
+    //            break;//now shadow, no need to check remaining tris
+    //        }
+    //    }
+    //}
+    //if (!intersects) {
+    //    idiff = tri->v1.nor * dirRtoL;
+    //    diffuse = idiff * col;
+    //    col = col + diffuse;
+    //}
     if (tri->reflect) {//TODO: ADD REFLECT
 
     }
@@ -101,11 +110,20 @@ void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, c
             }
         }
     }
-    if (closest.v1.pos == vec3()) {
+    if (closest.v1.pos == vec3() && o == eye) {//Not in object, shade bg
+        //printf("\nBackground Pixel");
         io_col = bkgd;
     }
-    else {
+    else if(o == eye) {//enter shading loop
+        //printf("\nEntering shade loop");
         io_col = p_hit(&closest, depth, vtiPt, dir);
+    }
+    else if (closest.v1.pos != vec3() && o != eye) {//Hit smth, from/to light, shadow, do nothing
+        //printf("\nBlocked!");
+        io_col = io_col;
+    }
+    else if (o != eye && closest.v1.pos == vec3()) {//Hit nothing, from/to light, shade
+        t = INT_MIN;//Flag to show no intercepts
     }
 }
 
@@ -138,7 +156,7 @@ vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float
 void raytrace()
 {
     vec3 ray, col = bkgd, point;
-    light_pos = light_pos * vec3(1, 1, 1);
+    light_pos = light_pos * vec3( - 1);
     float t;
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
