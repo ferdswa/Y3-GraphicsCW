@@ -71,9 +71,15 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
         col = col * amb;
     }
     else {//Open
-        idiff = dot(tri->v1.nor, dirRtoL);
-        diffuse = col * idiff;
-        col = col + (tri->v1.col * amb) + diffuse;
+        idiff = dot(normalize(tri->v1.nor), dirRtoL);
+        if (idiff > 0) {//angle between dirRtoL and v1.nor in -90,90 so correct side of geometry
+            diffuse = col * idiff;
+            col = col + /*(tri->v1.col * amb)*/ +diffuse;
+        }
+        else//Wrong side of geometry
+        {
+            col = col * amb;
+        }
     }
     if (tri->reflect) {//TODO: ADD REFLECT
 
@@ -85,11 +91,12 @@ void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, c
 {
     triangle closest = triangle();
     vec3 vtiPt = vec3();
+    float cl = FLT_MAX;
     for (triangle tri : tris) {
         t = RayTriangleIntersection(o, dir, &tri, vtiPt);
         if (PointInTriangle(vtiPt, tri.v1.pos, tri.v2.pos, tri.v3.pos)) {
-            if (t < depth) {
-                depth = t;
+            if (t < cl) {
+                cl = t;
                 closest = tri;
             }
         }
@@ -141,7 +148,7 @@ void raytrace()
 {
     vec3 ray, col = bkgd, point;
     light_pos = light_pos * vec3( 1, 1, 1);
-    float t;
+    float t = FLT_MAX;
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
         float percf = (float)pixel_y / (float)PIXEL_H;
