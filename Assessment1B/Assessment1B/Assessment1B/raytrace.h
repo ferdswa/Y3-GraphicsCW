@@ -65,7 +65,7 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
     //Get dir for ray to l
     vec3 dirRtoL = light_pos - p;
     dirRtoL = normalize(dirRtoL);
-    trace(p, dirRtoL, t, col, INT_MAX, Shade);
+    trace(p, dirRtoL, t, col, depth, Shade);
     //Get rid of everything below until return for unlit
     if (t == INT_MIN) {//Inverted vs trace()
         col = col * amb;
@@ -74,7 +74,7 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
         idiff = dot(normalize(tri->v1.nor), dirRtoL);
         if (idiff > 0) {//angle between dirRtoL and v1.nor in -90,90 so correct side of geometry
             diffuse = col * idiff;
-            col = col + /*(tri->v1.col * amb)*/ +diffuse;
+            col = col * amb + diffuse;
         }
         else//Wrong side of geometry
         {
@@ -82,7 +82,8 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
         }
     }
     if (tri->reflect) {//TODO: ADD REFLECT
-
+        vec3 r = dirRtoL - 2 * dot(dirRtoL, normalize(tri->v1.nor)) * tri->v1.nor;
+        trace(p, normalize(r), t, col, 2, Shade);
     }
     return col;
 }
@@ -101,19 +102,37 @@ void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, c
             }
         }
     }
-    if (closest.v1.pos == vec3() && o == eye) {//Not in object, shade bg
-        //printf("\nBackground Pixel");
-        io_col = bkgd;
+    if (depth == 0) {
+        if (closest.v1.pos == vec3())
+            io_col = bkgd;
+        else
+            io_col = p_hit(&closest, 1, vtiPt, dir);
     }
-    else if(o == eye) {//enter shading loop
-        io_col = p_hit(&closest, depth, vtiPt, dir);
+    else if (depth == 1) {
+        if(closest.v1.pos != vec3())
+            io_col = io_col;
+        else
+            t = INT_MIN;
     }
-    else if (closest.v1.pos != vec3() && o != eye) {
-        io_col = io_col;
+    else if (depth == 2) {
+        if (closest.v1.pos != vec3())//Triangle hit
+        {
+            io_col = io_col + (vec3(0.1) * closest.v1.col);
+        }
     }
-    else if (o != eye && closest.v1.pos == vec3()) {
-        t = INT_MIN;
-    }
+    //if ( && o == eye) {//Not in object, shade bg
+    //    //printf("\nBackground Pixel");
+    //    io_col = bkgd;
+    //}
+    //else if(o == eye) {//enter shading loop
+    //    io_col = p_hit(&closest, depth, vtiPt, dir);
+    //}
+    //else if (closest.v1.pos != vec3() && o != eye) {
+    //    io_col = io_col;
+    //}
+    //else if (o != eye && closest.v1.pos == vec3()) {
+    //    
+    //}
 }
 
 vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float fov)
@@ -156,7 +175,7 @@ void raytrace()
         {
             
             ray = GetRayDirection(pixel_x, pixel_y, PIXEL_W, PIXEL_H, (float)PIXEL_W / (float)PIXEL_H, radians(90.f));
-            trace(eye, ray, t, col, INT_MAX, Shade);
+            trace(eye, ray, t, col, 0, Shade);
             writeCol(col, pixel_x, pixel_y);
         }
     }
