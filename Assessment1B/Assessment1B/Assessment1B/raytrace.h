@@ -106,15 +106,13 @@ void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, c
         io_col = bkgd;
     }
     else if(o == eye) {//enter shading loop
-        //printf("\nEntering shade loop");
         io_col = p_hit(&closest, depth, vtiPt, dir);
     }
-    else if (closest.v1.pos != vec3() && o != eye) {//Hit smth, from/to light, shadow, do nothing
-        //printf("\nBlocked!");
+    else if (closest.v1.pos != vec3() && o != eye) {
         io_col = io_col;
     }
-    else if (o != eye && closest.v1.pos == vec3()) {//Hit nothing, from/to light, shade
-        t = INT_MIN;//Flag to show no intercepts
+    else if (o != eye && closest.v1.pos == vec3()) {
+        t = INT_MIN;
     }
 }
 
@@ -147,7 +145,6 @@ vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float
 void raytrace()
 {
     vec3 ray, col = bkgd, point;
-    light_pos = light_pos * vec3( 1, 1, 1);
     float t = FLT_MAX;
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
