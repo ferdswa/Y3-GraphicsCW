@@ -59,8 +59,6 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 {
     vec3 col = tri->v1.col, diffuse;
     float t=FLT_MAX, amb = 0.1, idiff, colBuild = amb;
-
-    
     //Only 1 light, no need for for loop
     //Get dir for ray to l
     vec3 dirRtoL = light_pos - p;
@@ -120,19 +118,6 @@ void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, c
             io_col = io_col + (vec3(0.1) * closest.v1.col);
         }
     }
-    //if ( && o == eye) {//Not in object, shade bg
-    //    //printf("\nBackground Pixel");
-    //    io_col = bkgd;
-    //}
-    //else if(o == eye) {//enter shading loop
-    //    io_col = p_hit(&closest, depth, vtiPt, dir);
-    //}
-    //else if (closest.v1.pos != vec3() && o != eye) {
-    //    io_col = io_col;
-    //}
-    //else if (o != eye && closest.v1.pos == vec3()) {
-    //    
-    //}
 }
 
 vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float fov)
@@ -165,15 +150,14 @@ void raytrace()
 {
     vec3 ray, col = bkgd, point;
     float t = FLT_MAX;
+    light_pos = light_pos * vec3(1, 1, 1);
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
         float percf = (float)pixel_y / (float)PIXEL_H;
         int perci = percf * 100;
         std::clog << "\rScanlines done: " << perci << "%" << ' ' << std::flush;
-
         for (int pixel_x = 0; pixel_x < PIXEL_W; ++pixel_x)
         {
-            
             ray = GetRayDirection(pixel_x, pixel_y, PIXEL_W, PIXEL_H, (float)PIXEL_W / (float)PIXEL_H, radians(90.f));
             trace(eye, ray, t, col, 0, Shade);
             writeCol(col, pixel_x, pixel_y);
