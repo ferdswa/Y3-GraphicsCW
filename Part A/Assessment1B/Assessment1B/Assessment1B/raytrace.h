@@ -58,14 +58,13 @@ float RayTriangleIntersection(glm::vec3 o, glm::vec3 dir, triangle* tri, glm::ve
 glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 {
     vec3 col = tri->v1.col, diffuse;
-    float t=FLT_MAX, amb = 0.1, idiff, colBuild = amb;
+    float t = FLT_MAX, amb = 0.1, idiff;
     //Only 1 light, no need for for loop
     //Get dir for ray to l
     vec3 dirRtoL = light_pos - p;
     dirRtoL = normalize(dirRtoL);
     trace(p, dirRtoL, t, col, depth, Shade);
-    //Get rid of everything below until return for unlit
-    if (t == INT_MIN) {//Inverted vs trace()
+    if (t == INT_MIN) {
         col = col * amb;
     }
     else {//Open
@@ -89,6 +88,7 @@ glm::vec3 Shade(triangle* tri, int depth, glm::vec3 p, glm::vec3 dir)
 void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, closest_hit p_hit)
 {
     triangle closest = triangle();
+    closest.v1.pos = vec3();
     vec3 vtiPt = vec3();
     float cl = FLT_MAX;
     for (triangle tri : tris) {
@@ -123,7 +123,7 @@ void trace(glm::vec3 o, glm::vec3 dir, float& t, glm::vec3& io_col, int depth, c
 vec3 GetRayDirection(float px, float py, int W, int H, float aspect_ratio, float fov)
 {
     vec3 d, id;
-    vec3 rVec = vec3(1, 0, 0), uVec = vec3(0, -1, 0), fVec = vec3(0, 0, -1);
+    vec3 rVec = vec3(1, 0, 0)/*inv*/, uVec = vec3(0, -1, 0)/*n*/, fVec = vec3(0, 0, -1)/*inv*/;
     float coefficient, c1, f;
 
     //Calculate coefficient of R term and multiply with R
@@ -150,7 +150,6 @@ void raytrace()
 {
     vec3 ray, col = bkgd, point;
     float t = FLT_MAX;
-    light_pos = light_pos * vec3(1, 1, 1);
     for (int pixel_y = 0; pixel_y < PIXEL_H; ++pixel_y)
     {
         float percf = (float)pixel_y / (float)PIXEL_H;

@@ -86,7 +86,7 @@ void ComputeBarycentricCoordinates(int px, int py, triangle t, float& alpha, flo
 void ShadeFragment(triangle tri, float alpha, float beta, float gamma, glm::vec3& col, float& depth)
 {
 	float z1, z2, z3, zp;
-	
+
 	//Calculate alpha from furthest vtx, gamma from closest vtx, beta = the middle point
 	float zs[] = {tri.v1.pos.z, tri.v2.pos.z, tri.v3.pos.z};
 	int n = sizeof(zs) / sizeof(zs[0]);
