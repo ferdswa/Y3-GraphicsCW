@@ -1,4 +1,5 @@
 #include <GL/gl3w.h>
+
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
@@ -7,9 +8,60 @@
 
 #include <iostream>
 
+#include "camera.h"
 #include "error.h"
 #include "file.h"
 #include "shader.h"
+
+
+
+float vertices[] =
+{
+	//pos					//col			
+	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
+	0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
+	0.5f,  0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
+	0.5f,  0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
+	0.5f, -0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
+	0.5f,  0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
+	0.5f,  0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  	0.0f, 0.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  	0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  	0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  	0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  	0.0f, 0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  	0.0f, 0.0f, 1.0f,
+
+	0.5f,  0.5f,  0.5f,  	1.f, 1.0f, 0.0f,
+	0.5f,  0.5f, -0.5f,  	1.f, 1.0f, 0.0f,
+	0.5f, -0.5f, -0.5f, 	1.f, 1.0f, 0.0f,
+	0.5f, -0.5f, -0.5f,  	1.f, 1.0f, 0.0f,
+	0.5f, -0.5f,  0.5f,  	1.f, 1.0f, 0.0f,
+	0.5f,  0.5f,  0.5f,  	1.f, 1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 1.0f,
+	0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 1.0f,
+	0.5f, -0.5f,  0.5f,  	1.f, 0.0f, 1.0f,
+	0.5f, -0.5f,  0.5f,  	1.f, 0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  	1.f, 0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  	0.0f, 1.f, 1.0f,
+	0.5f,  0.5f, -0.5f,  	0.0f, 1.f, 1.0f,
+	0.5f,  0.5f,  0.5f,  	0.0f, 1.f, 1.0f,
+	0.5f,  0.5f,  0.5f,  	0.0f, 1.f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  	0.0f, 1.f, 1.0f,
+	-0.5f,  0.5f, -0.5f, 	0.0f, 1.f, 1.0f,
+};
+
+SCamera Camera;
 
 
 #define NUM_BUFFERS 1
@@ -17,104 +69,86 @@
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
-float vertices[] =
-{
-	//TL
-	//pos					//col			
-	-1.0f, 0.0f, -1.0f,  	1.f, 0.0f, 0.0f,				//v1
-	-1.f, 0.f, 1.f,			1.f, 0.f, 0.f,					//v2
-	0.f,1.f,0.f,			1.f, 0.f, 0.f,					//v3
+#define WIDTH 640
+#define HEIGHT 480
 
-	//TB
-	//pos					//col			
-	1.f, 0.f,-1.f,			0.f, 1.f, 0.f,				//v1
-	-1.0f, 0.0f, -1.0f,		0.f,1.f,0.f,				//v2
-	0.f,1.f,0.f,			0.f,1.f,0.f,				//v3
 
-	//TR
-	//pos					//col			
-		1.f,0.f,1.f,		0.f,0.f,1.f,					//v1
-		1.f,0.f,-1.f,		0.f,0.f,1.f,					//v2
-		0.f,1.f,0.f,		0.f,0.f,1.f,					//v3
 
-		//TF
-		//pos					//col			
-			-1.f,0.f,1.f,		0.f,1.f,0.f,					//v1
-			1.f,0.f,1.f,		0.f,1.f,0.f,					//v2
-			0.f,1.f,0.f,		0.f,1.f,0.f,					//v3
-
-			//BL
-			//pos					//col			
-				-1.f,0.f,1.f,		0.f,0.f,1.f,					//v1
-				-1.f,0.f,-1.f,		0.f,0.f,1.f,					//v2
-				0.f,-1.f,0.f,		0.f,0.f,1.f,					//v3
-
-				//BB
-				//pos					//col			
-					-1,0,-1,				1.f,0.f,0.f,					//v1
-					1,0,-1,				1.f,0.f,0.f,					//v2
-					0,-1,0,				1.f,0.f,0.f,					//v3
-
-					//BR
-					//pos					//col			
-						1,0,-1,				0.f,1.f,1.f,						//v1
-						1,0,1,				0.f,1.f,1.f,						//v2
-						0,-1,0,				0.f,1.f,1.f,						//v3
-
-						//BF
-						//pos					//col			
-							1,0,1,				1.f,1.f,0.f,						//v1
-							-1,0,1,				1.f,1.f,0.f,						//v2
-							0,-1,0,				1.f,1.f,0.f,						//v3
-
-};
-
-void ProcessKeyboard(GLFWwindow* window)
+void processKeyboard(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	float x_offset = 0.f;
+	float y_offset = 0.f;
+	bool cam_changed = false;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		x_offset = 0.f;
+		y_offset = -1.f;
+		cam_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		x_offset = 0.f;
+		y_offset = 1.f;
+		cam_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		x_offset = -1.f;
+		y_offset = 0.f;
+		cam_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		x_offset = 1.f;
+		y_offset = 0.f;
+		cam_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+		cam_dist -= 0.1f;
+		cam_changed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+		cam_dist += 0.1f;
+		cam_changed = true;
+	}
+	if (cam_changed) {
+		MoveAndOrientCamera(Camera, glm::vec3(0.f, 0.f, 0.f), cam_dist, x_offset, y_offset);
+	}
 }
 
-void ResizeCallback(GLFWwindow*, int w, int h)
+void SizeCallback(GLFWwindow* window, int w, int h)
 {
 	glViewport(0, 0, w, h);
 }
-
-//DECLARE POSITION VARIABLES HERE
-glm::vec3 oct_pos = glm::vec3(0.f, 0.f, -5.f);
-glm::vec3 cam_pos = glm::vec3(0.f, 0.5f, 0.f);
 
 int main(int argc, char** argv)
 {
 	glfwInit();
 
-	GLFWwindow* window = glfwCreateWindow(640, 480, "3D modelling", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Camera", NULL, NULL);
 	glfwMakeContextCurrent(window);
-	glfwSetWindowSizeCallback(window, ResizeCallback);
+	glfwSetWindowSizeCallback(window, SizeCallback);
 
 	gl3wInit();
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback((GLDEBUGPROC)DebugCallback, 0);
 
-	unsigned int shaderProgram = CompileShader("triangle.vert", "triangle.frag");
+
+	GLuint program = CompileShader("triangle.vert", "triangle.frag");
+
+	InitCamera(Camera);
+	MoveAndOrientCamera(Camera, glm::vec3(0.f, 0.f, 0.f), cam_dist, 0.f, 0.f);
 
 	glCreateBuffers(NUM_BUFFERS, Buffers);
-	glGenVertexArrays(NUM_VAOS, VAOs);
-
 	glNamedBufferStorage(Buffers[0], sizeof(vertices), vertices, 0);
+	glGenVertexArrays(NUM_VAOS, VAOs);
 	glBindVertexArray(VAOs[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, Buffers[0]);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (6 * sizeof(float)), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (6 * sizeof(float)), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-
-
-	//ENABLE DEPTH TEST HERE
 	glEnable(GL_DEPTH_TEST);
-
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -123,35 +157,31 @@ int main(int argc, char** argv)
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glUseProgram(shaderProgram);
+		glUseProgram(program);
 
-		//SET UP AND COPY MODEL MATRIX HERE
 		glm::mat4 model = glm::mat4(1.f);
-		model = glm::translate(model, oct_pos);
-		model = glm::rotate(model, (float)glfwGetTime() / 2, glm::vec3(0.f, 1.f, 0.f));
-		model = glm::rotate(model, (float)glfwGetTime() / 2, glm::vec3(1.f, 0.f, 0.f));
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//SET UP AND COPY VIEW MATRIX HERE
-		glm::mat4 view = glm::mat4(1.f);
-		view = glm::translate(view, -cam_pos);
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//SET UP AND COPY PROJECTION MATRIX HERE
-		glm::mat4 projection = glm::mat4(1.f);
-		projection = glm::perspective(glm::radians(45.f), 640.f / 480.f, 1.f, 10.f);
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
+		glm::mat4 view = glm::mat4(1.f);
+		view = glm::lookAt(Camera.Position, Camera.Position+Camera.Front, Camera.Up);
+		glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+		glm::mat4 projection = glm::mat4(1.f);
+		projection = glm::perspective(glm::radians(45.f), (float)WIDTH / (float)HEIGHT, .1f, 10.f);
+		glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(VAOs[0]);
-		glDrawArrays(GL_TRIANGLES, 0, 8 * 3);
-
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
-		ProcessKeyboard(window);
+		processKeyboard(window);
 	}
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
 	return 0;
 }

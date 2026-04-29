@@ -132,6 +132,7 @@
     <ClCompile Include="3DScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\camera.h" />
     <ClInclude Include="..\..\include\file.h" />
     <ClInclude Include="..\..\include\shader.h" />
   </ItemGroup>
