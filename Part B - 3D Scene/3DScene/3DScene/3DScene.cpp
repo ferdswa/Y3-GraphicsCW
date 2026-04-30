@@ -1,5 +1,4 @@
 #include <GL/gl3w.h>
-
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
@@ -7,6 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include <vector>
+#include <map>
 
 #include "camera.h"
 #include "error.h"
@@ -15,62 +16,84 @@
 
 
 
-float vertices[] =
-{
-	//pos					//col			
-	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
-	0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
-	0.5f,  0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
-	0.5f,  0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 0.0f,
 
-	-0.5f, -0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
-	0.5f, -0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
-	0.5f,  0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
-	0.5f,  0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  	0.0f, 1.0f, 0.0f,
 
-	-0.5f,  0.5f,  0.5f,  	0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  	0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  	0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  	0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  	0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  	0.0f, 0.0f, 1.0f,
 
-	0.5f,  0.5f,  0.5f,  	1.f, 1.0f, 0.0f,
-	0.5f,  0.5f, -0.5f,  	1.f, 1.0f, 0.0f,
-	0.5f, -0.5f, -0.5f, 	1.f, 1.0f, 0.0f,
-	0.5f, -0.5f, -0.5f,  	1.f, 1.0f, 0.0f,
-	0.5f, -0.5f,  0.5f,  	1.f, 1.0f, 0.0f,
-	0.5f,  0.5f,  0.5f,  	1.f, 1.0f, 0.0f,
+float cubeVertices[] = {
+	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
+	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
 
-	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 1.0f,
-	0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 1.0f,
-	0.5f, -0.5f,  0.5f,  	1.f, 0.0f, 1.0f,
-	0.5f, -0.5f,  0.5f,  	1.f, 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  	1.f, 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  	1.f, 0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
 
-	-0.5f,  0.5f, -0.5f,  	0.0f, 1.f, 1.0f,
-	0.5f,  0.5f, -0.5f,  	0.0f, 1.f, 1.0f,
-	0.5f,  0.5f,  0.5f,  	0.0f, 1.f, 1.0f,
-	0.5f,  0.5f,  0.5f,  	0.0f, 1.f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  	0.0f, 1.f, 1.0f,
-	-0.5f,  0.5f, -0.5f, 	0.0f, 1.f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.f,
+
+	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.f,
+};
+float planeVertices[] = {
+	// positions          // col			//SPECIFY ALPHA COORDINATE HERE
+	 5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,
+	-5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,
+	-5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,
+
+	 5.0f, -0.5f,  5.0f,  1.0f, 1.0f, 1.f,
+	-5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,
+	 5.0f, -0.5f, -5.0f,  1.0f, 1.0f, 1.f,
 };
 
-SCamera Camera;
+
+float transparentVertices[] = {
+	// positions				// RGB				//SPECIFY ALPHA COORDINATE HERE
+	-.5f,  -0.5f,  0.0f,		1.0f,  0.0f, 0.0f,
+	.0f, 0.5f,  0.0f,			1.0f,  0.0f, 0.0f,
+	.5f, -0.5f,  0.0f,			1.0f,  0.0f, 0.0f,
+};
+
+SCamera cam;
+float FoV = 45.f;
+double oldX, oldY;
+int maxx, maxy;
+
+void framebuffer_size_callback(GLFWwindow* window, int w, int h)
+{
+	glViewport(0, 0, w, h);
+}
 
 
-#define NUM_BUFFERS 1
-#define NUM_VAOS 1
-GLuint Buffers[NUM_BUFFERS];
-GLuint VAOs[NUM_VAOS];
 
-#define WIDTH 640
-#define HEIGHT 480
 
 
 
@@ -78,101 +101,179 @@ void processKeyboard(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	float x_offset = 0.f;
-	float y_offset = 0.f;
-	bool cam_changed = false;
+	float xoffset = 0.f, yoffset = 0.f, zoffset = 0.f;
+	double xpos, ypos;
+	bool camChanged = false;
+
+	//Get and reset cursor pos
+	glfwGetCursorPos(window, &xpos, &ypos);
+	glfwGetWindowSize(window, &maxx, &maxy);
+	glfwSetCursorPos(window, (double)maxx / 2, (double)maxy / 2);
+	if (xpos != oldX || ypos != oldY)
+		camChanged = true;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		x_offset = 0.f;
-		y_offset = -1.f;
-		cam_changed = true;
+		zoffset = .01f;
+		camChanged = true;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		x_offset = 0.f;
-		y_offset = 1.f;
-		cam_changed = true;
+		zoffset = -.01f;
+		camChanged = true;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		x_offset = -1.f;
-		y_offset = 0.f;
-		cam_changed = true;
+		xoffset = -.01f;
+		camChanged = true;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		x_offset = 1.f;
-		y_offset = 0.f;
-		cam_changed = true;
+		xoffset = .01f;
+		camChanged = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-		cam_dist -= 0.1f;
-		cam_changed = true;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+		xoffset /= 2;
+		zoffset /= 2;
 	}
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-		cam_dist += 0.1f;
-		cam_changed = true;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+		//Replace with height test for bumpy plane
+		cam.Height = -0.25f;
+		camChanged = true;
 	}
-	if (cam_changed) {
-		MoveAndOrientCamera(Camera, glm::vec3(0.f, 0.f, 0.f), cam_dist, x_offset, y_offset);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+		cam.Height = 0;
+		camChanged = true;
 	}
+	//if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && cam.Position.y == 0) {
+	//	//jump logic
+	//	cam.jumping = true;
+	//	thread t(Jump, ref(cam), xoffset, zoffset, xpos, ypos, maxx,maxy);
+	//	t.detach();
+	//}
+	if (camChanged) {
+		MoveAndOrientCamera(cam, xoffset, yoffset, zoffset, xpos, ypos, maxx, maxy);
+	}
+	oldX = xpos;
+	oldY = ypos;
 }
 
-void SizeCallback(GLFWwindow* window, int w, int h)
-{
-	glViewport(0, 0, w, h);
-}
 
 int main(int argc, char** argv)
 {
 	glfwInit();
-
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Camera", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Transparency", NULL, NULL);
 	glfwMakeContextCurrent(window);
-	glfwSetWindowSizeCallback(window, SizeCallback);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	gl3wInit();
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback((GLDEBUGPROC)DebugCallback, 0);
 
-
-	GLuint program = CompileShader("triangle.vert", "triangle.frag");
-
-	InitCamera(Camera);
-	MoveAndOrientCamera(Camera, glm::vec3(0.f, 0.f, 0.f), cam_dist, 0.f, 0.f);
-
-	glCreateBuffers(NUM_BUFFERS, Buffers);
-	glNamedBufferStorage(Buffers[0], sizeof(vertices), vertices, 0);
-	glGenVertexArrays(NUM_VAOS, VAOs);
-	glBindVertexArray(VAOs[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, Buffers[0]);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (6 * sizeof(float)), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (6 * sizeof(float)), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
 	glEnable(GL_DEPTH_TEST);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	//ENABLE BLENDING HERE
+
+	//SET BLEND FUNCTION HERE
+
+	unsigned int shaderProgram = CompileShader("triangle.vert", "triangle.frag");
+
+
+	unsigned int VAO[3];
+	glGenVertexArrays(3, VAO);
+	unsigned int VBO[3];
+	glGenBuffers(3, VBO);
+
+	//INCLUDE ALPHA COORDINATE IN THE VAO HERE
+	//cube
+	glBindVertexArray(VAO[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	//plane
+	glBindVertexArray(VAO[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	//transparent
+	glBindVertexArray(VAO[2]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//
+
+
+	glUseProgram(shaderProgram);
+
+	std::vector<glm::vec3> positions;
+	positions.push_back(glm::vec3(0, 0, 2.f));
+	positions.push_back(glm::vec3(0.5f, 0, 0.f));
+	positions.push_back(glm::vec3(0, 0, 1.f));
+	positions.push_back(glm::vec3(-.5f, 0, 0.5f));
+	positions.push_back(glm::vec3(0, 0, 1.5f));
+
+	processKeyboard(window);
 	while (!glfwWindowShouldClose(window))
 	{
-		static const GLfloat bgd[] = { 1.f, 1.f, 1.f, 1.f };
+		static const GLfloat bgd[] = { .02f, .5f, .75f, 1.f };
 		glClearBufferfv(GL_COLOR, 0, bgd);
 		glClear(GL_DEPTH_BUFFER_BIT);
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glUseProgram(program);
-
-		glm::mat4 model = glm::mat4(1.f);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 		glm::mat4 view = glm::mat4(1.f);
-		view = glm::lookAt(Camera.Position, Camera.Position+Camera.Front, Camera.Up);
-		glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 		glm::mat4 projection = glm::mat4(1.f);
-		projection = glm::perspective(glm::radians(45.f), (float)WIDTH / (float)HEIGHT, .1f, 10.f);
-		glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		projection = glm::perspective(glm::radians(FoV), (float)maxx/ (float)maxy, .1f, 100.f);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		glBindVertexArray(VAOs[0]);
+		glm::mat4 model = glm::mat4(1.f);
+
+		// cubes
+		glBindVertexArray(VAO[0]);
+		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		model = glm::rotate(model, (float)glfwGetTime() / 2.f, glm::vec3(0.0f, 1.0f, .0f));
+		model = glm::scale(model, glm::vec3(.5, .5, .5));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, -1.0f));
+		model = glm::rotate(model, (float)glfwGetTime() / -2.f, glm::vec3(0.0f, 1.0f, .0f));
+		model = glm::scale(model, glm::vec3(.5, .5, .5));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// floor
+		glBindVertexArray(VAO[1]);
+		model = glm::mat4(1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
+		//SORT THE TRANSPARENT TRIANGLE POSITIONS HERE
+
+		glBindVertexArray(VAO[2]);
+		for (int i = 0; i < positions.size(); i++)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, positions[i]);
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+		}
 
 		glfwSwapBuffers(window);
 
@@ -180,8 +281,11 @@ int main(int argc, char** argv)
 		processKeyboard(window);
 	}
 
-	glfwDestroyWindow(window);
+	glDeleteVertexArrays(3, VAO);
+	glDeleteBuffers(3, VBO);
+
 	glfwTerminate();
 
 	return 0;
 }
+
