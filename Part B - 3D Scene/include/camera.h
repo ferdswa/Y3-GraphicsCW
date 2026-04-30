@@ -75,6 +75,7 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float yoffset, float zoffse
 	in.Position += in.Right * xoffset;
 	in.Position.y = yoffset + in.Height;
 }
+
 void Jump(SCamera &in, float xoffset, float zoffset, float xpos, float ypos, int maxx, int maxy) {
 	static double lastTime = glfwGetTime();
 	printf("jump start\n");

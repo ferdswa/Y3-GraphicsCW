@@ -13,6 +13,7 @@
 #include "error.h"
 #include "file.h"
 #include "shader.h"
+using namespace std;
 
 
 
@@ -144,7 +145,7 @@ void processKeyboard(GLFWwindow* window)
 	//	//jump logic
 	//	cam.jumping = true;
 	//	thread t(Jump, ref(cam), xoffset, zoffset, xpos, ypos, maxx,maxy);
-	//	t.detach();
+	//	t.join();
 	//}
 	if (camChanged) {
 		MoveAndOrientCamera(cam, xoffset, yoffset, zoffset, xpos, ypos, maxx, maxy);
