@@ -154,7 +154,7 @@ void processKeyboard(GLFWwindow* window)
 int main(int argc, char** argv)
 {
 	glfwInit();
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Transparency", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "3D Scene - Maxim Carr - psymc9", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
