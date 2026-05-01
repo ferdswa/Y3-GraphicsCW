@@ -133,7 +133,7 @@ void processKeyboard(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
 		//Replace with height test for bumpy plane
-		cam.Height = 1.75f;
+		cam.Height = 1.5f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
 		cam.Height = 2.0f;
