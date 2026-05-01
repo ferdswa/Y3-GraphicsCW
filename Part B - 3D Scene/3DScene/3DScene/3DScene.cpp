@@ -100,33 +100,32 @@ void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 
 void processKeyboard(GLFWwindow* window)
 {
+	static double lastFrameTime = glfwGetTime();
+	double cFrameTime = glfwGetTime();
+	float frameTimeDif = float(cFrameTime - lastFrameTime);
+	
+	float xoffset = 0.f, zoffset = 0.f;
+	double xpos, ypos;
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	float xoffset = 0.f, yoffset = 0.f, zoffset = 0.f;
-	double xpos, ypos;
-	bool camChanged = false;
 
 	//Get and reset cursor pos
 	glfwGetCursorPos(window, &xpos, &ypos);
 	glfwGetWindowSize(window, &maxx, &maxy);
 	glfwSetCursorPos(window, (double)maxx / 2, (double)maxy / 2);
-	if (xpos != oldX || ypos != oldY)
-		camChanged = true;
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		zoffset = .01f;
-		camChanged = true;
+		zoffset = 2.f * frameTimeDif;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		zoffset = -.01f;
-		camChanged = true;
+		zoffset = -2.f * frameTimeDif;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		xoffset = -.01f;
-		camChanged = true;
+		xoffset = -2.f * frameTimeDif;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		xoffset = .01f;
-		camChanged = true;
+		xoffset = 2.f * frameTimeDif;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
 		xoffset /= 2;
@@ -134,24 +133,21 @@ void processKeyboard(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
 		//Replace with height test for bumpy plane
-		cam.Height = -0.25f;
-		camChanged = true;
+		cam.Height = 1.75f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
-		cam.Height = 0;
-		camChanged = true;
+		cam.Height = 2.0f;
 	}
-	//if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && cam.Position.y == 0) {
-	//	//jump logic
-	//	cam.jumping = true;
-	//	thread t(Jump, ref(cam), xoffset, zoffset, xpos, ypos, maxx,maxy);
-	//	t.join();
-	//}
-	if (camChanged) {
-		MoveAndOrientCamera(cam, xoffset, yoffset, zoffset, xpos, ypos, maxx, maxy);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !cam.Jumping) {
+		//jump logic
+		cam.Jumping = true;
+		thread t(Jump, ref(cam), frameTimeDif);
+		t.detach();
 	}
+	MoveAndOrientCamera(cam, xoffset, zoffset, xpos, ypos, maxx, maxy);
 	oldX = xpos;
 	oldY = ypos;
+	lastFrameTime = cFrameTime;
 }
 
 

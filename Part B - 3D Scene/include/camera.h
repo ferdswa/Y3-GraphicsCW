@@ -24,8 +24,9 @@ struct SCamera
 
 	float Yaw;
 	float Pitch;
-	bool jumping;
+	bool Jumping;
 	float Height;
+	double jHeight;
 
 	const float MovementSpeed = .5f;
 	float MouseSensitivity = 0.05f;
@@ -42,14 +43,15 @@ void InitCamera(SCamera& in)
 	in.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 	in.WorldUp = in.Up;
 	in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
-	in.jumping = false;
+	in.Jumping = false;
+	float Height = 0;
 	in.Yaw = -90.f;
 	in.Pitch = 0.f;
 }
 
 float cam_dist = 2.f;
 
-void MoveAndOrientCamera(SCamera& in, float xoffset, float yoffset, float zoffset, float xpos, float ypos, int maxx, int maxy)
+void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, float ypos, int maxx, int maxy)
 {
 	in.Yaw += in.MouseSensitivity * double((double)maxx / 2 - xpos);
 	in.Pitch += in.MouseSensitivity * double((double)maxy / 2 - ypos);
@@ -73,25 +75,24 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float yoffset, float zoffse
 
 	in.Position += in.Front * zoffset;
 	in.Position += in.Right * xoffset;
-	in.Position.y = yoffset + in.Height;
+	in.Position.y = in.jHeight + in.Height;// + groundOffset (when impl)
 }
 
-void Jump(SCamera &in, float xoffset, float zoffset, float xpos, float ypos, int maxx, int maxy) {
-	static double lastTime = glfwGetTime();
-	printf("jump start\n");
-	while (in.Position.y < 1) {
-		printf("jump up\n");
-		MoveAndOrientCamera(in, xoffset, in.Position.y + 0.00034, zoffset, xpos, ypos, maxx, maxy);
+/**
+Makes the camera play the Jump animation.
+Run on second thread to allow other inputs to continue.
+*/
+void Jump(SCamera &in, float dTime) {
+	while (in.jHeight < 1) {
+		
+		in.jHeight += 0.000002 * dTime;
 	}
-	while (in.Position.y > 0) {
-		printf("jump down\n");
-		MoveAndOrientCamera(in, xoffset, in.Position.y - 0.00034, zoffset, xpos, ypos, maxx, maxy);
+	in.jHeight = 1;
+	while (in.jHeight > 0) {
+		in.jHeight -= 0.000002 * dTime;
 	}
-	MoveAndOrientCamera(in, xoffset, 0, zoffset, xpos, ypos, maxx, maxy);
-	in.jumping = false;
-	double currentTime = glfwGetTime();
-	float deltaTime = float(currentTime - lastTime);
-	printf("jump compl in %f\n", deltaTime);
+	in.jHeight = 0;
+	in.Jumping = false;
 }
 
 
