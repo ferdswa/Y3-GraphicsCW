@@ -87,7 +87,6 @@ void Jump(SCamera &in, float dTime) {
 		
 		in.jHeight += 0.000002 * dTime;
 	}
-	in.jHeight = 1;
 	while (in.jHeight > 0) {
 		in.jHeight -= 0.000002 * dTime;
 	}
