@@ -28,7 +28,7 @@ struct SCamera
 	float Height;
 	double jHeight;
 
-	const float MovementSpeed = .5f;
+	const float MovementSpeed = 2.f;
 	float MouseSensitivity = 0.05f;
 
 
@@ -44,12 +44,11 @@ void InitCamera(SCamera& in)
 	in.WorldUp = in.Up;
 	in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
 	in.Jumping = false;
-	float Height = 0;
 	in.Yaw = -90.f;
 	in.Pitch = 0.f;
+	in.Height = 2.0f;
+	in.jHeight = 0.f;
 }
-
-float cam_dist = 2.f;
 
 void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, float ypos, int maxx, int maxy)
 {
@@ -73,8 +72,8 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 
 	in.Up = glm::cross(in.Right, in.Front);
 
-	in.Position += in.Front * zoffset;
-	in.Position += in.Right * xoffset;
+	in.Position += in.Front * zoffset * 1.5f * in.MovementSpeed;
+	in.Position += in.Right * xoffset * in.MovementSpeed;
 	in.Position.y = in.jHeight + in.Height;// + groundOffset (when impl)
 }
 

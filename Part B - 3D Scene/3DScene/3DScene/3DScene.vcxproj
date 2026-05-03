@@ -135,6 +135,7 @@
     <ClInclude Include="..\..\include\camera.h" />
     <ClInclude Include="..\..\include\file.h" />
     <ClInclude Include="..\..\include\shader.h" />
+    <ClInclude Include="..\..\include\terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
