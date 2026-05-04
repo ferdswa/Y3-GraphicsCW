@@ -72,9 +72,9 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 
 	in.Up = glm::cross(in.Right, in.Front);
 	in.Position += in.Front * zoffset * 1.5f * in.MovementSpeed;
-	if (in.Position.z < -20) {
+	printf("%f\n", in.Position.x);
+	if (in.Position.z < -20)
 		in.Position.z = -20;
-	}
 	in.Position += in.Right * xoffset * in.MovementSpeed;
 	in.Position.y = in.jHeight + in.Height;// + groundOffset (when impl)
 }
@@ -83,13 +83,19 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 Makes the camera play the Jump animation.
 Run on second thread to allow other inputs to continue.
 */
-void Jump(SCamera &in, double dTime) {
+void Jump(SCamera &in) {
+	double lastFrameTime = glfwGetTime();
 	while (in.jHeight < 1) {
-		
-		in.jHeight += 0.000008 * dTime;
+		double cFrameTime = glfwGetTime();
+		double frameTimeDif = double(cFrameTime - lastFrameTime);
+		in.jHeight += 8 * frameTimeDif;
+		lastFrameTime = glfwGetTime();
 	}
 	while (in.jHeight > 0) {
-		in.jHeight -= 0.000008 * dTime;
+		double cFrameTime = glfwGetTime();
+		double frameTimeDif = double(cFrameTime - lastFrameTime);
+		in.jHeight -= 8 * frameTimeDif;
+		lastFrameTime = glfwGetTime();
 	}
 	in.jHeight = 0;
 	in.Jumping = false;

@@ -17,10 +17,6 @@
 #include "terrain.h"
 using namespace std;
 
-
-
-
-
 float skyboxVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 
@@ -72,6 +68,66 @@ float skyboxVertices[] = {
 	-0.5f,  0.5f,  0.5f,  0,6,
 	-0.5f,  0.5f, -0.5f,  0,0,
 };
+float sandboxVertices[] = {
+	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
+	//Front - sand
+	-0.5f, -0.5f,  0.5f,  0,0,
+	 0.5f, -0.5f,  0.5f,  50,0,
+	 0.5f,  0.f,  0.5f,  50,50,
+	 0.5f,  0.f,  0.5f,  50,50,
+	-0.5f,  0.f,  0.5f,  0,50,
+	-0.5f, -0.5f,  0.5f,  0,0,
+
+	//Left cut this
+	-0.5f,  0.f,  0.5f,  50,50,
+	-0.5f,  0.f, 0.f,  0,50,
+	-0.5f, -0.5f, 0.f,  0,0,
+	-0.5f, -0.5f, 0.f,  0,0,
+	-0.5f, -0.5f,  0.5f,  50,0,
+	-0.5f,  0.f,  0.5f,  50,50,
+
+	//Right cut this at zero 
+	 0.5f,  0.f,  0.5f,  50,50,
+	 0.5f,  0.f, 0.f,  0,50,
+	 0.5f, -0.5f, 0.f,  0,0,
+	 0.5f, -0.5f, 0.f,  0,0,
+	 0.5f, -0.5f,  0.5f,  50,0,
+	 0.5f,  0.f,  0.5f,  50,50,
+
+	 //bottom
+	-0.5f, -0.5f, -0.5f,  0,0,
+	 0.5f, -0.5f, -0.5f,  50,0,
+	 0.5f, -0.5f,  0.5f,  50,50,
+	 0.5f, -0.5f,  0.5f,  50,50,
+	-0.5f, -0.5f,  0.5f,  0,50,
+	-0.5f, -0.5f, -0.5f,  0,0,
+};
+float seaboxVertices[] = {
+	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
+	//Back - sea
+	-0.5f, -0.5f, -0.5f,  0,0,
+	 0.5f, -0.5f, -0.5f,  6,0,
+	 0.5f,  0.f, -0.5f,  6,6,
+	 0.5f,  0.f, -0.5f,  6,6,
+	-0.5f,  0.f, -0.5f,  0,6,
+	-0.5f, -0.5f, -0.5f,  0,0,
+
+	//Left cut this
+	-0.5f,  0.f,  0.f,  50,50,
+	-0.5f,  0.f, -0.5f,  0,50,
+	-0.5f, -0.5f, -0.5f,  0,0,
+	-0.5f, -0.5f, -0.5f,  0,0,
+	-0.5f, -0.5f,  0.f,  50,0,
+	-0.5f,  0.f,  0.f,  50,50,
+
+	//Right cut this at zero 
+	 0.5f,  0.f,  0.f,  50,50,
+	 0.5f,  0.f, -0.5f,  0,50,
+	 0.5f, -0.5f, -0.5f,  0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,
+	 0.5f, -0.5f,  0.f,  50,0,
+	 0.5f,  0.f,  0.f,  50,50,
+};
 float sandVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 	//bl
@@ -104,13 +160,6 @@ float seaVertices[] = {
 	//br
 	 5.0f, 0.25f, -5.0f,  10,0,
 };
-
-//float transparentVertices[] = {
-//	// positions				// RGB				//SPECIFY ALPHA COORDINATE HERE
-//	-.5f,  -0.5f,  0.0f,		1.0f,  0.0f, 0.0f,
-//	.0f, 0.5f,  0.0f,			1.0f,  0.0f, 0.0f,
-//	.5f, -0.5f,  0.0f,			1.0f,  0.0f, 0.0f,
-//};
 
 SCamera cam;
 STerrain sea;
@@ -173,7 +222,7 @@ void processKeyboard(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !cam.Jumping) {
 		//jump logic
 		cam.Jumping = true;
-		thread t(Jump, ref(cam), frameTimeDif);
+		thread t(Jump, ref(cam));
 		t.detach();
 	}
 	MoveAndOrientCamera(cam, xoffset, zoffset, xpos, ypos, maxx, maxy);
@@ -214,10 +263,10 @@ int main(int argc, char** argv)
 	GLuint soilTexture = setup_texture("textures/soil_cracked.bmp");
 	GLuint waterTexture = setup_texture("textures/water.bmp");
 
-	unsigned int VAO[3];
-	glGenVertexArrays(3, VAO);
-	unsigned int VBO[3];
-	glGenBuffers(3, VBO);
+	unsigned int VAO[5];
+	glGenVertexArrays(5, VAO);
+	unsigned int VBO[5];
+	glGenBuffers(5, VBO);
 
 	//INCLUDE ALPHA COORDINATE IN THE VAO HERE
 	//skybox
@@ -244,11 +293,26 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	//sandbox
+	glBindVertexArray(VAO[3]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sandboxVertices), sandboxVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	//sandbox
+	glBindVertexArray(VAO[4]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(seaboxVertices), seaboxVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//
 
 
 	glUseProgram(shaderProgram);
@@ -311,6 +375,7 @@ int main(int argc, char** argv)
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+
 		//sea
 		glBindTexture(GL_TEXTURE_2D, waterTexture);
 		glBindVertexArray(VAO[2]);
@@ -318,9 +383,19 @@ int main(int argc, char** argv)
 		for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist)+10; x += 10) {
 			for (int z = -renderDist-20; z <= renderDist+20; z += 10) {
 				sea.positions.push_back(glm::vec3(x, 0, z));
+				sea.positions.push_back(glm::vec3(x, -0.8, z));
+				sea.positions.push_back(glm::vec3(x, -1.6, z));
+				sea.positions.push_back(glm::vec3(x, -2.4, z));
+				sea.positions.push_back(glm::vec3(x, -3.2, z));
+				sea.positions.push_back(glm::vec3(x, -4.0, z));
+				sea.positions.push_back(glm::vec3(x, -4.8, z));
+				sea.positions.push_back(glm::vec3(x, -5.6, z));
+				sea.positions.push_back(glm::vec3(x, -6.4, z));
+				sea.positions.push_back(glm::vec3(x, -7.2, z));
+				sea.positions.push_back(glm::vec3(x, -8.0, z));
 			}
 		}
-		model = glm::mat4(1.0f);
+		
 		for (int seI = 0; seI < sea.positions.size(); seI++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, sea.positions[seI]);
@@ -331,7 +406,6 @@ int main(int argc, char** argv)
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-
 		//SORT THE TRANSPARENT TRIANGLE POSITIONS HERE
 
 		/*glBindVertexArray(VAO[2]);
