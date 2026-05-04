@@ -311,13 +311,12 @@ int main(int argc, char** argv)
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-		printf("%f\n", cam.Position.x);
 		//sea
-		sea.positions.clear();
 		glBindTexture(GL_TEXTURE_2D, waterTexture);
 		glBindVertexArray(VAO[2]);
-		for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist); x += 10) {
-			for (int z = -renderDist; z < renderDist; z += 10) {
+		sea.positions.clear();
+		for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist)+10; x += 10) {
+			for (int z = -renderDist-20; z <= renderDist+20; z += 10) {
 				sea.positions.push_back(glm::vec3(x, 0, z));
 			}
 		}

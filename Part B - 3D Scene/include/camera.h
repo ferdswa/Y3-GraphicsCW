@@ -71,8 +71,10 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 	);
 
 	in.Up = glm::cross(in.Right, in.Front);
-
 	in.Position += in.Front * zoffset * 1.5f * in.MovementSpeed;
+	if (in.Position.z < -20) {
+		in.Position.z = -20;
+	}
 	in.Position += in.Right * xoffset * in.MovementSpeed;
 	in.Position.y = in.jHeight + in.Height;// + groundOffset (when impl)
 }
