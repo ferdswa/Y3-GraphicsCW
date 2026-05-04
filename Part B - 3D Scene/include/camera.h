@@ -81,13 +81,13 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 Makes the camera play the Jump animation.
 Run on second thread to allow other inputs to continue.
 */
-void Jump(SCamera &in, float dTime) {
+void Jump(SCamera &in, double dTime) {
 	while (in.jHeight < 1) {
 		
-		in.jHeight += 0.000002 * dTime;
+		in.jHeight += 0.000008 * dTime;
 	}
 	while (in.jHeight > 0) {
-		in.jHeight -= 0.000002 * dTime;
+		in.jHeight -= 0.000008 * dTime;
 	}
 	in.jHeight = 0;
 	in.Jumping = false;

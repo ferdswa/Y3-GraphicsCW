@@ -21,7 +21,6 @@ using namespace std;
 
 
 
-
 float skyboxVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 
@@ -76,18 +75,18 @@ float skyboxVertices[] = {
 float sandVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 	//bl
-	 0.5f, 0.f,  0.5f,  1,1,
+	 1.f, 0.f,  1.f,  2,2,
 	 //fl
-	-0.5f, 0.f,  0.5f,  0,1,
+	-1.f, 0.f,  1.f,  0,2,
 	//fr
-	-0.5f, 0.f, -0.5f,  0,0,
+	-1.f, 0.f, -1.f,  0,0,
 
 	//bl
-	 0.5f, 0.f,  0.5f,  1,1,
+	 1.f, 0.f,  1.f,  2,2,
 	//fr
-	-0.5f, 0.f, -0.5f,  0,0,
+	-1.f, 0.f, -1.f,  0,0,
 	//br
-	 0.5f, 0.f, -0.5f,  1,0,
+	 1.f, 0.f, -1.f,  2,0,
 };
 float seaVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
@@ -96,14 +95,14 @@ float seaVertices[] = {
 	//fl
 	-5.0f, -0.25f,  5.0f,  0,10,
 	//fr
-	-5.0f, -0.25f, -5.0f,  0,0,
+	-5.0f, 0.25f, -5.0f,  0,0,
 
 	//bl
 	 5.0f, -0.25f,  5.0f,  10,10,
 	//fr
-	-5.0f, -0.25f, -5.0f,  0,0,
+	-5.0f, 0.25f, -5.0f,  0,0,
 	//br
-	 5.0f, -0.25f, -5.0f,  10,0,
+	 5.0f, 0.25f, -5.0f,  10,0,
 };
 
 //float transparentVertices[] = {
@@ -114,9 +113,12 @@ float seaVertices[] = {
 //};
 
 SCamera cam;
+STerrain sea;
+STerrain land;
 float FoV = 45.f;
 double oldX, oldY;
 int maxx, maxy;
+int renderDist = 50;
 
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 {
@@ -132,7 +134,7 @@ void processKeyboard(GLFWwindow* window)
 {
 	static double lastFrameTime = glfwGetTime();
 	double cFrameTime = glfwGetTime();
-	float frameTimeDif = float(cFrameTime - lastFrameTime);
+	double frameTimeDif = double(cFrameTime - lastFrameTime);
 	
 	float xoffset = 0.f, zoffset = 0.f;
 	double xpos, ypos;
@@ -205,6 +207,8 @@ int main(int argc, char** argv)
 
 	InitCamera(cam);
 
+	
+
 	GLuint sandTexture = setup_texture("textures/sand.bmp");
 	GLuint nightSkyTexture = setup_texture("textures/night_sky.bmp");
 	GLuint soilTexture = setup_texture("textures/soil_cracked.bmp");
@@ -251,7 +255,6 @@ int main(int argc, char** argv)
 
 
 	vector<glm::vec3> sandPos;
-	vector<glm::vec3> seaPos;
 
 	sandPos.push_back(glm::vec3(0, 0, 0));
 	sandPos.push_back(glm::vec3(1, 0, 0));
@@ -262,6 +265,13 @@ int main(int argc, char** argv)
 	sandPos.push_back(glm::vec3(-1, 0, -1));
 	sandPos.push_back(glm::vec3(1, 0, -1));
 	sandPos.push_back(glm::vec3(0, 0, -1));
+
+	sea.tSize = 10;
+	sea.tSpeed = 1.f;
+
+	//Waves animation for water
+	thread waves(Scroll, ref(sea));
+	waves.detach();
 
 	processKeyboard(window);
 	while (!glfwWindowShouldClose(window))
@@ -283,20 +293,14 @@ int main(int argc, char** argv)
 
 		glm::mat4 model = glm::mat4(1.f);
 
-		// cubes
+		//skybox
 		glBindTexture(GL_TEXTURE_2D, nightSkyTexture);
 		glBindVertexArray(VAO[0]);
 		model = glm::translate(model, cam.Position);
 		//skybox size = 50 X 50 X 50 unit
-		model = glm::scale(model, glm::vec3(100, 100, 100));
+		model = glm::scale(model, glm::vec3(2*renderDist, 2*renderDist, 2*renderDist));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		/*model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(1.0f, 0.0f, -1.0f));
-		model = glm::rotate(model, (float)glfwGetTime() / -2.f, glm::vec3(0.0f, 1.0f, .0f));
-		model = glm::scale(model, glm::vec3(.5, .5, .5));
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);*/
 
 		//sand
 		glBindTexture(GL_TEXTURE_2D, sandTexture);
@@ -307,20 +311,24 @@ int main(int argc, char** argv)
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-
+		printf("%f\n", cam.Position.x);
 		//sea
-		seaPos.clear();
+		sea.positions.clear();
 		glBindTexture(GL_TEXTURE_2D, waterTexture);
 		glBindVertexArray(VAO[2]);
-		for (int x = int(cam.Position.x) - 50; x < int(cam.Position.x) + 50; x += 10) {
-			for (int z = int(cam.Position.z) - 50; z < int(cam.Position.z) + 50; z += 10) {
-				seaPos.push_back(glm::vec3(x, 0, z));
+		for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist); x += 10) {
+			for (int z = -renderDist; z < renderDist; z += 10) {
+				sea.positions.push_back(glm::vec3(x, 0, z));
 			}
 		}
 		model = glm::mat4(1.0f);
-		for (int seI = 0; seI < seaPos.size(); seI++) {
+		for (int seI = 0; seI < sea.positions.size(); seI++) {
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, seaPos[seI]);
+			model = glm::translate(model, sea.positions[seI]);
+			model = glm::translate(model, glm::vec3(0, 0, sea.zOffset));
+			if ((int)sea.positions[seI].z % 20 != 0) {
+				model = glm::rotate(model, glm::radians(180.f), glm::vec3(0,1,0));
+			}
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
