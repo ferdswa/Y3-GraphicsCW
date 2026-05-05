@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <thread>
 #include "load_object.h"
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 struct SCamera
@@ -93,26 +95,33 @@ double yCalc(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, float x, float z) {
 }
 
 //Christer Ericson
-void Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c, float& u, float& v, float& w)
+bool Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
 {
-	glm::vec3 v0 = b - a, v1 = c - a, v2 = p - a;
-	float d00 = glm::dot(v0, v0);
-	float d01 = glm::dot(v0, v1);
-	float d11 = glm::dot(v1, v1);
-	float d20 = glm::dot(v2, v0);
-	float d21 = glm::dot(v2, v1);
-	float denom = d00 * d11 - d01 * d01;
-	v = (d11 * d20 - d01 * d21) / denom;
-	w = (d00 * d21 - d01 * d20) / denom;
-	u = 1.0f - v - w;
+	glm::vec3 a0 = a - p;
+	glm::vec3 b0 = b - p;
+	glm::vec3 c0 = c - p;
+
+	glm::vec3 normPBC = glm::cross(b0, c0);
+	glm::vec3 normPCA = glm::cross(c0, a0);
+	glm::vec3 normPAB = glm::cross(a0, b0);
+
+	if (glm::dot(normPBC, normPCA) < 0.0f) {
+		return false;
+	}
+	else if (glm::dot(normPBC, normPAB) < 0.0f) {
+		return false;
+	}
+
+	return true;
 }
 
 
 //Calculate how much to bump the camera up by.
 //Cam above 3 vertices AND vertices form a face.
-void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices) {
+void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vector<Face> faces) {
 	glm::vec3 d = in.WorldUp * -1.0f;
 	std::map<double, glm::vec3> sortedVertices;
+	float u, v, w;
 	for (int index = 0; index < vertices.size(); index++) {
 		//Closest to camera's horiz position
 		glm::vec2 v = glm::vec2(in.Position.x, in.Position.z) - glm::vec2(vertices[index].position.x, vertices[index].position.z);
@@ -121,8 +130,16 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices) {
 	}
 	//Closest. Find all other vertices that share a face
 	glm::vec3 closest = sortedVertices.begin()->second;
-	
-	
+	std::vector<Face> facesFiltered;
+	std::copy_if(faces.begin(), faces.end(), std::back_inserter(facesFiltered), [closest](Face iFace) {return (iFace.v1 == closest || iFace.v2 == closest || iFace.v3 == closest); });
+	for (auto& face : facesFiltered) {
+		if (Barycentric(in.Position, face.v1, face.v2, face.v3)) {
+			in.groundOffset = yCalc(face.v1, face.v2, face.v3, in.Position.x, in.Position.z);
+		}
+	}
+	double relX = in.Position.x - closest.x; 
+	double relZ = in.Position.z - closest.z;
+
 }	
 
 /**
