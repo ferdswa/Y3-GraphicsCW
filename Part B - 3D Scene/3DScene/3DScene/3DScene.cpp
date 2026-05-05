@@ -258,9 +258,16 @@ int main(int argc, char** argv)
 	InitCamera(cam);
 	
 	std::vector<Vertex> flatLandVertices;
-	obj_parse(flatLandVertices, "objs/bumpy_plane.obj");
-	
-	
+	std::vector<Face> flatLandFaces;
+	obj_parse(flatLandVertices, flatLandFaces, "objs/bumpy_plane.obj");
+
+		printf("%f,%f,%f\n", flatLandFaces[0].v1.x, flatLandFaces[0].v1.y, flatLandFaces[0].v1.z);
+		printf("%f,%f,%f\n", flatLandFaces[0].v2.x, flatLandFaces[0].v2.y, flatLandFaces[0].v2.z);
+		printf("%f,%f,%f\n", flatLandFaces[0].v3.x, flatLandFaces[0].v3.y, flatLandFaces[0].v3.z);
+
+		printf("%f,%f,%f\n", flatLandFaces[flatLandFaces.size()-1].v1.x, flatLandFaces[flatLandFaces.size()-1].v1.y, flatLandFaces[flatLandFaces.size()-1].v1.z);
+		printf("%f,%f,%f\n", flatLandFaces[flatLandFaces.size()-1].v2.x, flatLandFaces[flatLandFaces.size()-1].v2.y, flatLandFaces[flatLandFaces.size()-1].v2.z);
+		printf("%f,%f,%f\n", flatLandFaces[flatLandFaces.size()-1].v3.x, flatLandFaces[flatLandFaces.size()-1].v3.y, flatLandFaces[flatLandFaces.size()-1].v3.z);
 
 	GLuint sandTexture = setup_texture("textures/sand.bmp");
 	GLuint nightSkyTexture = setup_texture("textures/night_sky.bmp");

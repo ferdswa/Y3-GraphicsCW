@@ -92,25 +92,37 @@ double yCalc(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, float x, float z) {
 	return l1 * v1.y + l2 * v2.y + l3 * v3.y;
 }
 
+//Christer Ericson
+void Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c, float& u, float& v, float& w)
+{
+	glm::vec3 v0 = b - a, v1 = c - a, v2 = p - a;
+	float d00 = glm::dot(v0, v0);
+	float d01 = glm::dot(v0, v1);
+	float d11 = glm::dot(v1, v1);
+	float d20 = glm::dot(v2, v0);
+	float d21 = glm::dot(v2, v1);
+	float denom = d00 * d11 - d01 * d01;
+	v = (d11 * d20 - d01 * d21) / denom;
+	w = (d00 * d21 - d01 * d20) / denom;
+	u = 1.0f - v - w;
+}
+
+
+//Calculate how much to bump the camera up by.
+//Cam above 3 vertices AND vertices form a face.
 void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices) {
 	glm::vec3 d = in.WorldUp * -1.0f;
 	std::map<double, glm::vec3> sortedVertices;
-	for (const auto& vert : vertices) {
+	for (int index = 0; index < vertices.size(); index++) {
 		//Closest to camera's horiz position
-		glm::vec2 v = glm::vec2(in.Position.x, in.Position.z) - glm::vec2(vert.position.x, vert.position.z);
+		glm::vec2 v = glm::vec2(in.Position.x, in.Position.z) - glm::vec2(vertices[index].position.x, vertices[index].position.z);
 		double l = glm::length(v);
-		sortedVertices[l] = vert.position;
+		sortedVertices[l] = vertices[index].position;
 	}
-	//Closest 3
-	glm::vec3 closest3[3];
-	int i = 0;
-	for (auto it = sortedVertices.begin(); it != sortedVertices.end(); it++) {
-		closest3[i] = it->second;
-		if (i == 2)
-			break;
-		i++;
-	}
-	in.groundOffset = yCalc(closest3[0], closest3[1], closest3[2], in.Position.x, in.Position.z);
+	//Closest. Find all other vertices that share a face
+	glm::vec3 closest = sortedVertices.begin()->second;
+	
+	
 }	
 
 /**
