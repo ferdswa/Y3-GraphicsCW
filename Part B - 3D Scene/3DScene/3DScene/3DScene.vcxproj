@@ -136,6 +136,8 @@
     <ClInclude Include="..\..\include\file.h" />
     <ClInclude Include="..\..\include\shader.h" />
     <ClInclude Include="..\..\include\terrain.h" />
+    <ClInclude Include="..\..\include\tiny_obj_loader.h" />
+    <ClInclude Include="load_object.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <glm/glm.hpp>
 #include <thread>
+#include "load_object.h"
 using namespace std;
 
 struct SCamera
@@ -27,6 +28,7 @@ struct SCamera
 	bool Jumping;
 	float Height;
 	double jHeight;
+	double groundOffset;
 
 	const float MovementSpeed = 2.f;
 	float MouseSensitivity = 0.05f;
@@ -48,6 +50,7 @@ void InitCamera(SCamera& in)
 	in.Pitch = 0.f;
 	in.Height = 2.0f;
 	in.jHeight = 0.f;
+	in.groundOffset = 0;
 }
 
 void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, float ypos, int maxx, int maxy)
@@ -63,21 +66,54 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 		glm::sin(glm::radians(in.Pitch)),
 		glm::cos(glm::radians(in.Pitch)) * glm::cos(glm::radians(in.Yaw))
 	);
-
 	in.Right = glm::vec3(
 		glm::sin(glm::radians(in.Yaw - 90)),
 		0,
 		glm::cos(glm::radians(in.Yaw - 90))
 	);
-
 	in.Up = glm::cross(in.Right, in.Front);
+
+	//Trace a false ray to floor to calculate height addition for collisions
+
 	in.Position += in.Front * zoffset * 1.5f * in.MovementSpeed;
-	printf("%f\n", in.Position.x);
 	if (in.Position.z < -20)
 		in.Position.z = -20;
 	in.Position += in.Right * xoffset * in.MovementSpeed;
-	in.Position.y = in.jHeight + in.Height;// + groundOffset (when impl)
+	in.Position.y = in.jHeight + in.Height + in.groundOffset;
 }
+
+void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices) {
+	glm::vec3 d = in.WorldUp * -1.0f;
+	std::map<float, glm::vec3> sortedVertices;
+	for (const auto& vert : vertices) {
+		//Closest to camera's horiz position
+		glm::vec3 v = in.Position - vert.position;
+		v.y = 0;
+		float l = glm::length(v);
+		sortedVertices[l] = vert.position;
+	}
+	//Closest 3
+	glm::vec3 closest3[3];
+	int i = 0;
+	for (auto it = sortedVertices.begin(); it != sortedVertices.end(); it++) {
+		closest3[i] = it->second;
+		if (i == 2)
+			break;
+		i++;
+	}
+	glm::vec3 v12 = closest3[1] - closest3[0];
+	glm::vec3 v13 = closest3[2] - closest3[0];
+	glm::vec3 psubo = closest3[0] - in.Position;
+
+	glm::vec3 res = glm::normalize(glm::cross(v12, v13));
+	float resF = glm::dot(psubo, res);
+	float denom = glm::dot(d, res);
+	float t = resF / denom;
+	glm::vec3 dt = d * t;
+	glm::vec3 point = in.Position + dt;
+
+	in.groundOffset = point.y;
+}	
 
 /**
 Makes the camera play the Jump animation.

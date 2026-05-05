@@ -15,6 +15,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "terrain.h"
+#include "load_object.h"
 using namespace std;
 
 float skyboxVertices[] = {
@@ -255,7 +256,10 @@ int main(int argc, char** argv)
 	unsigned int shaderProgram = CompileShader("triangle.vert", "triangle.frag");
 
 	InitCamera(cam);
-
+	
+	std::vector<Vertex> flatLandVertices;
+	obj_parse(flatLandVertices, "objs/bumpy_plane.obj");
+	
 	
 
 	GLuint sandTexture = setup_texture("textures/sand.bmp");
@@ -280,10 +284,10 @@ int main(int argc, char** argv)
 	//sand
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(sandVertices), sandVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*flatLandVertices.size(), &flatLandVertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	//sea
 	glBindVertexArray(VAO[2]);
@@ -317,19 +321,6 @@ int main(int argc, char** argv)
 
 	glUseProgram(shaderProgram);
 
-
-	vector<glm::vec3> sandPos;
-
-	sandPos.push_back(glm::vec3(0, 0, 0));
-	sandPos.push_back(glm::vec3(1, 0, 0));
-	sandPos.push_back(glm::vec3(1, 0, 1));
-	sandPos.push_back(glm::vec3(0, 0, 1));
-	sandPos.push_back(glm::vec3(-1, 0, 0));
-	sandPos.push_back(glm::vec3(-1, 0, 1));
-	sandPos.push_back(glm::vec3(-1, 0, -1));
-	sandPos.push_back(glm::vec3(1, 0, -1));
-	sandPos.push_back(glm::vec3(0, 0, -1));
-
 	sea.tSize = 10;
 	sea.tSpeed = 1.f;
 
@@ -346,7 +337,7 @@ int main(int argc, char** argv)
 
 		glPolygonMode(GL_FRONT, GL_FILL);
 
-
+		CalculateGroundOffset(cam, flatLandVertices);
 		glm::mat4 view = glm::mat4(1.f);
 		view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -369,12 +360,9 @@ int main(int argc, char** argv)
 		//sand
 		glBindTexture(GL_TEXTURE_2D, sandTexture);
 		glBindVertexArray(VAO[1]);
-		for (int saI = 0; saI < sandPos.size(); saI++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, sandPos[saI]);
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
+		model = glm::mat4(1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, flatLandVertices.size());
 
 		//sea
 		glBindTexture(GL_TEXTURE_2D, waterTexture);
