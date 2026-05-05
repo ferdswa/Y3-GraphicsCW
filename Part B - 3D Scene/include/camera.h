@@ -82,14 +82,23 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 	in.Position.y = in.jHeight + in.Height + in.groundOffset;
 }
 
+double yCalc(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, float x, float z) {
+	double det = (v2.z - v3.z) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.z - v3.z);
+
+	double l1 = ((v2.z - v3.z) * (x - v3.x) + (v3.x - v2.x) * (z - v3.z)) / det;
+	double l2 = ((v3.z - v1.z) * (x - v3.x) + (v1.x - v3.x) * (z - v3.z)) / det;
+	double l3 = 1.0f - l1 - l2;
+
+	return l1 * v1.y + l2 * v2.y + l3 * v3.y;
+}
+
 void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices) {
 	glm::vec3 d = in.WorldUp * -1.0f;
-	std::map<float, glm::vec3> sortedVertices;
+	std::map<double, glm::vec3> sortedVertices;
 	for (const auto& vert : vertices) {
 		//Closest to camera's horiz position
-		glm::vec3 v = in.Position - vert.position;
-		v.y = 0;
-		float l = glm::length(v);
+		glm::vec2 v = glm::vec2(in.Position.x, in.Position.z) - glm::vec2(vert.position.x, vert.position.z);
+		double l = glm::length(v);
 		sortedVertices[l] = vert.position;
 	}
 	//Closest 3
@@ -101,18 +110,7 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices) {
 			break;
 		i++;
 	}
-	glm::vec3 v12 = closest3[1] - closest3[0];
-	glm::vec3 v13 = closest3[2] - closest3[0];
-	glm::vec3 psubo = closest3[0] - in.Position;
-
-	glm::vec3 res = glm::normalize(glm::cross(v12, v13));
-	float resF = glm::dot(psubo, res);
-	float denom = glm::dot(d, res);
-	float t = resF / denom;
-	glm::vec3 dt = d * t;
-	glm::vec3 point = in.Position + dt;
-
-	in.groundOffset = point.y;
+	in.groundOffset = yCalc(closest3[0], closest3[1], closest3[2], in.Position.x, in.Position.z);
 }	
 
 /**
@@ -137,8 +135,3 @@ void Jump(SCamera &in) {
 	in.Jumping = false;
 }
 
-
-
-void SimGravityOnCamera(SCamera& in, float deltaY) {
-
-}
