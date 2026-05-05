@@ -123,7 +123,7 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vecto
 	std::map<double, glm::vec3> sortedVertices;
 	float u, v, w;
 	for (int index = 0; index < vertices.size(); index++) {
-		//Closest to camera's horiz position
+		//Closest to camera's position
 		glm::vec3 v = in.Position - vertices[index].position;
 		double l = glm::length(v);
 		sortedVertices[l] = vertices[index].position;
