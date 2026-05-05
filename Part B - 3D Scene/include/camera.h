@@ -94,8 +94,8 @@ double yCalc(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, float x, float z) {
 	return l1 * v1.y + l2 * v2.y + l3 * v3.y;
 }
 
-//Christer Ericson
-bool Barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
+//https://uysalaltas.github.io/2022/03/24/OpenGL_Collision_Detection.html
+bool checkIntersect(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
 {
 	glm::vec3 a0 = a - p;
 	glm::vec3 b0 = b - p;
@@ -124,7 +124,7 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vecto
 	float u, v, w;
 	for (int index = 0; index < vertices.size(); index++) {
 		//Closest to camera's horiz position
-		glm::vec2 v = glm::vec2(in.Position.x, in.Position.z) - glm::vec2(vertices[index].position.x, vertices[index].position.z);
+		glm::vec3 v = in.Position - vertices[index].position;
 		double l = glm::length(v);
 		sortedVertices[l] = vertices[index].position;
 	}
@@ -133,13 +133,11 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vecto
 	std::vector<Face> facesFiltered;
 	std::copy_if(faces.begin(), faces.end(), std::back_inserter(facesFiltered), [closest](Face iFace) {return (iFace.v1 == closest || iFace.v2 == closest || iFace.v3 == closest); });
 	for (auto& face : facesFiltered) {
-		if (Barycentric(in.Position, face.v1, face.v2, face.v3)) {
+		if (checkIntersect(in.Position, face.v1, face.v2, face.v3)) {
 			in.groundOffset = yCalc(face.v1, face.v2, face.v3, in.Position.x, in.Position.z);
+			break;
 		}
 	}
-	double relX = in.Position.x - closest.x; 
-	double relZ = in.Position.z - closest.z;
-
 }	
 
 /**

@@ -180,7 +180,7 @@ void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 
 
 
-void processKeyboard(GLFWwindow* window)
+void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Face> landFaces)
 {
 	static double lastFrameTime = glfwGetTime();
 	double cFrameTime = glfwGetTime();
@@ -226,6 +226,7 @@ void processKeyboard(GLFWwindow* window)
 		thread t(Jump, ref(cam));
 		t.detach();
 	}
+	CalculateGroundOffset(cam, landVertices, landFaces);
 	MoveAndOrientCamera(cam, xoffset, zoffset, xpos, ypos, maxx, maxy);
 	oldX = xpos;
 	oldY = ypos;
@@ -257,9 +258,9 @@ int main(int argc, char** argv)
 
 	InitCamera(cam);
 	
-	std::vector<Vertex> flatLandVertices;
-	std::vector<Face> flatLandFaces;
-	obj_parse(flatLandVertices, flatLandFaces, "objs/bumpy_plane.obj");
+	std::vector<Vertex> landVertices;
+	std::vector<Face> landFaces;
+	obj_parse(landVertices, landFaces, "objs/bumpy_plane.obj");
 
 
 	GLuint sandTexture = setup_texture("textures/sand.bmp");
@@ -284,7 +285,7 @@ int main(int argc, char** argv)
 	//sand
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*flatLandVertices.size(), &flatLandVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*landVertices.size(), &landVertices[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
@@ -328,7 +329,7 @@ int main(int argc, char** argv)
 	thread waves(Scroll, ref(sea));
 	waves.detach();
 
-	processKeyboard(window);
+	processKeyboard(window, landVertices, landFaces);
 	while (!glfwWindowShouldClose(window))
 	{
 		static const GLfloat bgd[] = { 0.f, 0.f, .36f, 1.f };
@@ -337,7 +338,7 @@ int main(int argc, char** argv)
 
 		glPolygonMode(GL_FRONT, GL_FILL);
 
-		CalculateGroundOffset(cam, flatLandVertices, flatLandFaces);
+		
 		glm::mat4 view = glm::mat4(1.f);
 		view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -362,7 +363,7 @@ int main(int argc, char** argv)
 		glBindVertexArray(VAO[1]);
 		model = glm::mat4(1.0f);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, flatLandVertices.size());
+		glDrawArrays(GL_TRIANGLES, 0, landVertices.size());
 
 		//sea
 		glBindTexture(GL_TEXTURE_2D, waterTexture);
@@ -408,7 +409,7 @@ int main(int argc, char** argv)
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
-		processKeyboard(window);
+		processKeyboard(window, landVertices, landFaces);
 	}
 
 	glDeleteVertexArrays(3, VAO);
