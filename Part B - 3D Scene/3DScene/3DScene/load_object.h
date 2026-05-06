@@ -29,46 +29,86 @@ void obj_parse(std::vector<Vertex>& vertexArray, std::vector<Face>& faceArray, c
 	{
 		for (int i = 0; i < shape.mesh.indices.size()-2; i++) {
 			Face face{};
-			face.v1 = {
-				attribs.vertices[3 * shape.mesh.indices[i].vertex_index],
-				attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 1] - 4,
-				attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 2],
-			};
-			face.v2 = {
-				attribs.vertices[3 * shape.mesh.indices[i+1].vertex_index],
-				attribs.vertices[3 * shape.mesh.indices[i+1].vertex_index + 1] - 4,
-				attribs.vertices[3 * shape.mesh.indices[i+1].vertex_index + 2],
-			};
-			face.v3 = {
-				attribs.vertices[3 * shape.mesh.indices[i+2].vertex_index],
-				attribs.vertices[3 * shape.mesh.indices[i+2].vertex_index + 1] - 4,
-				attribs.vertices[3 * shape.mesh.indices[i+2].vertex_index + 2],
-			};
+			if (strcmp(filename, "objs/bumpy_plane.obj") == 0) {
+				face.v1 = {
+					attribs.vertices[3 * shape.mesh.indices[i].vertex_index],
+					attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 1] - 4,
+					attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 2],
+				};
+				face.v2 = {
+					attribs.vertices[3 * shape.mesh.indices[i + 1].vertex_index],
+					attribs.vertices[3 * shape.mesh.indices[i + 1].vertex_index + 1] - 4,
+					attribs.vertices[3 * shape.mesh.indices[i + 1].vertex_index + 2],
+				};
+				face.v3 = {
+					attribs.vertices[3 * shape.mesh.indices[i + 2].vertex_index],
+					attribs.vertices[3 * shape.mesh.indices[i + 2].vertex_index + 1] - 4,
+					attribs.vertices[3 * shape.mesh.indices[i + 2].vertex_index + 2],
+				};
+			}
+			else if (strcmp(filename, "objs/flat_bumpy_plane.obj") == 0) {
+				face.v1 = {
+					attribs.vertices[3 * shape.mesh.indices[i].vertex_index],
+					attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 1] +3.5,
+					attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 2],
+				};
+				face.v2 = {
+					attribs.vertices[3 * shape.mesh.indices[i + 1].vertex_index],
+					attribs.vertices[3 * shape.mesh.indices[i + 1].vertex_index + 1] +3.5,
+					attribs.vertices[3 * shape.mesh.indices[i + 1].vertex_index + 2],
+				};
+				face.v3 = {
+					attribs.vertices[3 * shape.mesh.indices[i + 2].vertex_index],
+					attribs.vertices[3 * shape.mesh.indices[i + 2].vertex_index + 1] +3.5,
+					attribs.vertices[3 * shape.mesh.indices[i + 2].vertex_index + 2],
+				};
+			}
 			faceArray.push_back(face);
 		}
 		for (const auto& index : shape.mesh.indices)
 		{
 			Vertex vert{};
 			
-			vert.position =
-			{
-				attribs.vertices[3 * index.vertex_index],
-				attribs.vertices[3 * index.vertex_index + 1] - 4,
-				attribs.vertices[3 * index.vertex_index + 2],
-			};
+			if (strcmp(filename, "objs/bumpy_plane.obj") == 0) {
+				vert.position =
+				{
+					attribs.vertices[3 * index.vertex_index],
+					attribs.vertices[3 * index.vertex_index + 1] - 4,
+					attribs.vertices[3 * index.vertex_index + 2],
+				};
 
-			vert.normal =
-			{
-				attribs.normals[3 * index.normal_index],
-				attribs.normals[3 * index.normal_index + 1],
-				attribs.normals[3 * index.normal_index + 2]
-			};
+				vert.normal =
+				{
+					attribs.normals[3 * index.normal_index],
+					attribs.normals[3 * index.normal_index + 1],
+					attribs.normals[3 * index.normal_index + 2]
+				};
 
-			vert.texCoord = {
-				attribs.texcoords[index.texcoord_index * 2],
-				attribs.texcoords[index.texcoord_index * 2 + 1],
-			};
+				vert.texCoord = {
+					attribs.texcoords[index.texcoord_index * 2],
+					attribs.texcoords[index.texcoord_index * 2 + 1],
+				};
+			}
+			else if (strcmp(filename, "objs/flat_bumpy_plane.obj") == 0) {
+				vert.position =
+				{
+					attribs.vertices[3 * index.vertex_index],
+					attribs.vertices[3 * index.vertex_index + 1] + 3.5,
+					attribs.vertices[3 * index.vertex_index + 2],
+				};
 
+				vert.normal =
+				{
+					attribs.normals[3 * index.normal_index],
+					attribs.normals[3 * index.normal_index + 1],
+					attribs.normals[3 * index.normal_index + 2]
+				};
+
+				vert.texCoord = {
+					attribs.texcoords[index.texcoord_index * 2],
+					attribs.texcoords[index.texcoord_index * 2 + 1],
+				};
+			}
 			//vert.transparency = glm::vec1(1.f);
 
 			vertexArray.push_back(vert);

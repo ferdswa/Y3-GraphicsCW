@@ -134,7 +134,7 @@ void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 //Beach specific
 void checkXSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs, vector<Face> nfs, glm::vec3 camPos) {
 	//Positive X
-	if (camPos.z < 100) {//No need to render sand when its 
+	if (camPos.z < 100) {//No need to render sand when its out of view
 		if (camPos.x > 0) {
 			int intX = camPos.x + 90;
 			for (int i = intX / 100; i >= 0; i--) {
@@ -176,7 +176,56 @@ void checkXSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs
 }
 
 //Grass specific
+void checkZSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs, vector<Face> nfs, glm::vec3 camPos) {
+	int intZ = camPos.z + 90;
+	for (int i = intZ / 100; i > 0; i--) {
+		if (camPos.x >= 0) {
+			int intX = camPos.x + 95;
+			for (int j = intX / 100; j >= 0; j--) {
 
+				for (auto v : nvs) {
+					v.position.x = v.position.x + j * 100;
+					v.position.z = v.position.z + i * 100;
+					if (glm::length(camPos - v.position) < 340)//Def part of this terrain slice. Exclude others. 170 specifically to prevent terrain tearing 
+						vs.push_back(v);
+				}
+				for (auto f : nfs) {
+					f.v1.x = f.v1.x + j * 100;
+					f.v1.z = f.v1.z + i * 100;
+					f.v2.x = f.v2.x + j * 100;
+					f.v2.z = f.v2.z + i * 100;
+					f.v3.x = f.v3.x + j * 100;
+					f.v3.z = f.v3.z + i * 100;
+					if (glm::length(camPos - f.v1) < 100 && glm::length(camPos - f.v2) < 100 && glm::length(camPos - f.v2) < 100)//Add face (def in slice) - not used for rendering just for collisions
+						fs.push_back(f);
+				}
+			}
+		}
+		//Negative X
+		else {
+			int intX = camPos.x - 95;
+			for (int j = intX / 100; j <= 0; j++) {
+
+				for (auto v : nvs) {
+					v.position.x = v.position.x + j * 100;
+					v.position.z = v.position.z + i * 100;
+					if (glm::length(camPos - v.position) < 340)//Def part of this terrain slice. Exclude others. 170 specifically to prevent terrain tearing 
+						vs.push_back(v);
+				}
+				for (auto f : nfs) {
+					f.v1.x = f.v1.x + j * 100;
+					f.v1.z = f.v1.z + i * 100;
+					f.v2.x = f.v2.x + j * 100;
+					f.v2.z = f.v2.z + i * 100;
+					f.v3.x = f.v3.x + j * 100;
+					f.v3.z = f.v3.z + i * 100;
+					if (glm::length(camPos - f.v1) < 100 && glm::length(camPos - f.v2) < 100 && glm::length(camPos - f.v2) < 100)//Add face (def in slice) - not used for rendering just for collisions
+						fs.push_back(f);
+				}
+			}
+		}
+	}
+}
 
 void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Face> landFaces)
 {
@@ -259,25 +308,28 @@ int main(int argc, char** argv)
 	
 
 	//Get terrain and set spawn = a gentle slope
-	std::vector<Vertex> landVertices;
-	 
-	std::vector<Face> landFaces;
+	std::vector<Vertex> landVerticesVar;
+	std::vector<Face> landFacesVar;
+	std::vector<Vertex> flatVerticesConst;
+	std::vector<Face> flatFacesConst;
 
-	std::vector<Vertex> gentleSlopeVertices;
-	std::vector<Face> gentleSlopeFaces;
+	std::vector<Vertex> gentleSlopeVerticesConst;
+	std::vector<Face> gentleSlopeFacesConst;
 
-	std::vector<Vertex> flatVertices;
-	std::vector<Face> flatFaces;
+	std::vector<Vertex> flatVerticesVar;
+	std::vector<Face> flatFacesVar;
 
-	obj_parse(gentleSlopeVertices, gentleSlopeFaces, "objs/bumpy_plane.obj");
-	obj_parse(flatVertices, flatFaces, "objs/flat_bumpy_plane.obj");
+	obj_parse(gentleSlopeVerticesConst, gentleSlopeFacesConst, "objs/bumpy_plane.obj");
+	obj_parse(flatVerticesConst, flatFacesConst, "objs/flat_bumpy_plane.obj");
 
-	landVertices = gentleSlopeVertices;
-	landFaces = gentleSlopeFaces;
+	landVerticesVar = gentleSlopeVerticesConst;
+	landFacesVar = gentleSlopeFacesConst;
+	flatVerticesVar = flatVerticesConst;
+	flatFacesVar = flatFacesConst;
 
 	GLuint sandTexture = setup_texture("textures/sand.bmp");
 	GLuint nightSkyTexture = setup_texture("textures/night_sky.bmp");
-	GLuint soilTexture = setup_texture("textures/soil_cracked.bmp");
+	GLuint grassTexture = setup_texture("textures/grass.bmp");
 	GLuint waterTexture = setup_texture("textures/water.png");
 	GLuint waterTextureOpaque = setup_texture("textures/water_opaque.png");
 
@@ -295,10 +347,10 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	//sand
+	//land
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*landVertices.size(), &landVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*landVerticesVar.size(), &landVerticesVar[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
@@ -322,7 +374,7 @@ int main(int argc, char** argv)
 	//flat
 	glBindVertexArray(VAO[4]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * flatVertices.size(), &flatVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * flatVerticesVar.size(), &flatVerticesVar[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
@@ -342,7 +394,7 @@ int main(int argc, char** argv)
 	thread waves(Scroll, ref(sea));
 	waves.detach();
 
-	processKeyboard(window, landVertices, landFaces);
+	processKeyboard(window, landVerticesVar, landFacesVar);
 	MoveAndOrientCamera(cam, 1, 0, maxx/2, maxy/2, maxx, maxy);
 	while (!glfwWindowShouldClose(window))
 	{
@@ -383,26 +435,40 @@ int main(int argc, char** argv)
 		glDrawArrays(GL_TRIANGLES, 0, 42);
 
 		//sand
-		
-		landVertices.clear();
-		landFaces.clear();
-		checkXSpawnTerrain(landVertices, landFaces, gentleSlopeVertices, gentleSlopeFaces, cam.Position);
-		//renderCloseOnly(landVertices, landFaces, cam.Position);
-		glBindVertexArray(VAO[1]);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * landVertices.size(), &landVertices[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glEnableVertexAttribArray(1);
-		glBindTexture(GL_TEXTURE_2D, sandTexture);
-		model = glm::mat4(1.0f);
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, landVertices.size());
-
-		printf("%d\n", landVertices.size());
+		landVerticesVar.clear();
+		landFacesVar.clear();
+		checkXSpawnTerrain(landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, cam.Position);
+		if (landVerticesVar.size() > 0) {
+			glBindVertexArray(VAO[1]);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * landVerticesVar.size(), &landVerticesVar[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+			glBindTexture(GL_TEXTURE_2D, sandTexture);
+			model = glm::mat4(1.0f);
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, landVerticesVar.size());
+		}
 
 		//grass/flatlands
+		flatVerticesVar.clear();
+		checkZSpawnTerrain(flatVerticesVar, landFacesVar, flatVerticesConst, flatFacesConst, cam.Position);
+		printf("%d\n", flatVerticesVar.size());
+		if (flatVerticesVar.size() > 0) {
+			glBindVertexArray(VAO[4]);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * flatVerticesVar.size(), &flatVerticesVar[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+			glBindTexture(GL_TEXTURE_2D, grassTexture);
+			model = glm::mat4(1.0f);
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, flatVerticesVar.size());
+		}
 
 		//sea
 		glBindTexture(GL_TEXTURE_2D, waterTexture);
@@ -422,7 +488,6 @@ int main(int argc, char** argv)
 				sea.positions.push_back(glm::vec3(x, -5, z));
 				sea.positions.push_back(glm::vec3(x, -6, z));
 				sea.positions.push_back(glm::vec3(x, -7, z));
-				sea.positions.push_back(glm::vec3(x, -8.0, z));
 			}
 		}
 		std::map<float, glm::vec3> sorted;
@@ -445,7 +510,8 @@ int main(int argc, char** argv)
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
-		processKeyboard(window, landVertices, landFaces);
+		landVerticesVar.insert(landVerticesVar.end(), flatVerticesVar.begin(), flatVerticesVar.end());
+		processKeyboard(window, landVerticesVar, landFacesVar);
 	}
 
 	glDeleteVertexArrays(5, VAO);
