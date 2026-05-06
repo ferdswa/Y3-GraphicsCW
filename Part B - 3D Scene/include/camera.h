@@ -78,8 +78,8 @@ void MoveAndOrientCamera(SCamera& in, float xoffset, float zoffset, float xpos, 
 	//Trace a false ray to floor to calculate height addition for collisions
 
 	in.Position += in.Front * zoffset * 1.5f * in.MovementSpeed;
-	if (in.Position.z < -20)
-		in.Position.z = -20;
+	if (in.Position.z < -30)
+		in.Position.z = -30;
 	in.Position += in.Right * xoffset * in.MovementSpeed;
 	in.Position.y = in.jHeight + in.Height + in.groundOffset;
 }

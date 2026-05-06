@@ -340,16 +340,38 @@ int main(int argc, char** argv)
 		sea.positions.clear();
 		for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist)+10; x += 10) {
 			for (int z = -renderDist-20; z <= renderDist+20; z += 10) {
-				sea.positions.push_back(glm::vec3(x, 0, z));
-				sea.positions.push_back(glm::vec3(x, -0.8, z));
-				sea.positions.push_back(glm::vec3(x, -1.6, z));
-				sea.positions.push_back(glm::vec3(x, -2.4, z));
-				sea.positions.push_back(glm::vec3(x, -3.2, z));
+				sea.positions.push_back(glm::vec3(x, -0, z));
+				sea.positions.push_back(glm::vec3(x, -0.25, z));
+				sea.positions.push_back(glm::vec3(x, -0.5, z));
+				sea.positions.push_back(glm::vec3(x, -0.75, z));
+				sea.positions.push_back(glm::vec3(x, -1, z));
+				sea.positions.push_back(glm::vec3(x, -1.25, z));
+				sea.positions.push_back(glm::vec3(x, -1.5, z));
+				sea.positions.push_back(glm::vec3(x, -1.75, z));
+				sea.positions.push_back(glm::vec3(x, -2, z));
+				//sea.positions.push_back(glm::vec3(x, -2.25, z));
+				sea.positions.push_back(glm::vec3(x, -2.5, z));
+				//sea.positions.push_back(glm::vec3(x, -2.75, z));
+				sea.positions.push_back(glm::vec3(x, -3, z));
+				//sea.positions.push_back(glm::vec3(x, -3.25, z));
+				//sea.positions.push_back(glm::vec3(x, -3.5, z));
+				//sea.positions.push_back(glm::vec3(x, -3.75, z));
 				sea.positions.push_back(glm::vec3(x, -4.0, z));
-				sea.positions.push_back(glm::vec3(x, -4.8, z));
-				sea.positions.push_back(glm::vec3(x, -5.6, z));
-				sea.positions.push_back(glm::vec3(x, -6.4, z));
-				sea.positions.push_back(glm::vec3(x, -7.2, z));
+				//sea.positions.push_back(glm::vec3(x, -4.25, z));
+				//sea.positions.push_back(glm::vec3(x, -4.5, z));
+				//sea.positions.push_back(glm::vec3(x, -4.75, z));
+				sea.positions.push_back(glm::vec3(x, -5, z));
+				//sea.positions.push_back(glm::vec3(x, -5.25, z));
+				//sea.positions.push_back(glm::vec3(x, -5.5, z));
+				//sea.positions.push_back(glm::vec3(x, -5.75, z));
+				sea.positions.push_back(glm::vec3(x, -6, z));
+				//sea.positions.push_back(glm::vec3(x, -6.25, z));
+				//sea.positions.push_back(glm::vec3(x, -6.5, z));
+				//sea.positions.push_back(glm::vec3(x, -6.75, z));
+				sea.positions.push_back(glm::vec3(x, -7, z));
+				//sea.positions.push_back(glm::vec3(x, -7.25, z));
+				//sea.positions.push_back(glm::vec3(x, -7.5, z));
+				//sea.positions.push_back(glm::vec3(x, -7.75, z));
 				sea.positions.push_back(glm::vec3(x, -8.0, z));
 			}
 		}
@@ -394,4 +416,5 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
 

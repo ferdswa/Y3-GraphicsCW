@@ -7,9 +7,6 @@
 GLuint setup_texture(const char* filename)
 {
 	int w, h, chan;
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GLuint texObject;
 	glGenTextures(1, &texObject);
 	glBindTexture(GL_TEXTURE_2D, texObject);
@@ -18,14 +15,12 @@ GLuint setup_texture(const char* filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* pixels = stbi_load(filename, &w, &h, &chan, 0);
+	unsigned char* pixels = stbi_load(filename, &w, &h, &chan, STBI_rgb_alpha);
 	if (pixels) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	}
 	delete[] pixels;
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
 	return texObject;
 }
 
