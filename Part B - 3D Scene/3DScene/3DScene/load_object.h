@@ -31,17 +31,17 @@ void obj_parse(std::vector<Vertex>& vertexArray, std::vector<Face>& faceArray, c
 			Face face{};
 			face.v1 = {
 				attribs.vertices[3 * shape.mesh.indices[i].vertex_index],
-				attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 1] - 8,
+				attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 1] - 4,
 				attribs.vertices[3 * shape.mesh.indices[i].vertex_index + 2],
 			};
 			face.v2 = {
 				attribs.vertices[3 * shape.mesh.indices[i+1].vertex_index],
-				attribs.vertices[3 * shape.mesh.indices[i+1].vertex_index + 1] - 8,
+				attribs.vertices[3 * shape.mesh.indices[i+1].vertex_index + 1] - 4,
 				attribs.vertices[3 * shape.mesh.indices[i+1].vertex_index + 2],
 			};
 			face.v3 = {
 				attribs.vertices[3 * shape.mesh.indices[i+2].vertex_index],
-				attribs.vertices[3 * shape.mesh.indices[i+2].vertex_index + 1] - 8,
+				attribs.vertices[3 * shape.mesh.indices[i+2].vertex_index + 1] - 4,
 				attribs.vertices[3 * shape.mesh.indices[i+2].vertex_index + 2],
 			};
 			faceArray.push_back(face);
@@ -53,7 +53,7 @@ void obj_parse(std::vector<Vertex>& vertexArray, std::vector<Face>& faceArray, c
 			vert.position =
 			{
 				attribs.vertices[3 * index.vertex_index],
-				attribs.vertices[3 * index.vertex_index + 1] - 8,
+				attribs.vertices[3 * index.vertex_index + 1] - 4,
 				attribs.vertices[3 * index.vertex_index + 2],
 			};
 

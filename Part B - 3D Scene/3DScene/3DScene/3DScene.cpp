@@ -25,25 +25,29 @@ float skyboxVertices[] = {
 	-0.5f, -0.5f, -0.5f,  0,0,
 	 0.5f, -0.5f, -0.5f,  6,0,
 	 0.5f,  0.5f, -0.5f,  6,6,
+
 	 0.5f,  0.5f, -0.5f,  6,6,
 	-0.5f,  0.5f, -0.5f,  0,6,
 	-0.5f, -0.5f, -0.5f,  0,0,
 
 	//Front?
 	-0.5f, -0.5f,  0.5f,  0,0,
+	0.5f,  0.5f,  0.5f,  6,6,
 	 0.5f, -0.5f,  0.5f,  6,0,
+
 	 0.5f,  0.5f,  0.5f,  6,6,
-	 0.5f,  0.5f,  0.5f,  6,6,
+	 -0.5f, -0.5f,  0.5f,  0,0,
 	-0.5f,  0.5f,  0.5f,  0,6,
-	-0.5f, -0.5f,  0.5f,  0,0,
 
 	//Left
 	-0.5f,  0.5f,  0.5f,  6,6,
+	-0.5f, -0.5f, -0.5f,  0,0,
 	-0.5f,  0.5f, -0.5f,  0,6,
+	
 	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f, -0.5f,  0.5f,  6,0,
 	-0.5f,  0.5f,  0.5f,  6,6,
+	-0.5f, -0.5f,  0.5f,  6,0,
+	
 
 	//Right
 	 0.5f,  0.5f,  0.5f,  6,6,
@@ -81,35 +85,37 @@ float seaboxVertices[] = {
 
 	//Left cut this
 	-0.5f,  0.f,  0.25f,  50,50,
+	-0.5f, -0.5f, -0.5f,  0,0,
 	-0.5f,  0.f, -0.5f,  0,50,
+	
 	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f, -0.5f,  0.25f,  50,0,
 	-0.5f,  0.f,  0.25f,  50,50,
-
+	-0.5f, -0.5f,  0.25f,  50,0,
+	
 	//Right cut this at zero 
 	 0.5f,  0.f,  0.25f,  50,50,
 	 0.5f,  0.f, -0.5f,  0,50,
 	 0.5f, -0.5f, -0.5f,  0,0,
+
 	 0.5f, -0.5f, -0.5f,  0,0,
 	 0.5f, -0.5f,  0.25f,  50,0,
 	 0.5f,  0.f,  0.25f,  50,50,
 };
 float seaVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
-	//bl
-	 5.0f, -0.25f,  5.0f,  10,10,		
-	//fl
-	-5.0f, -0.25f,  5.0f,  0,10,		
-	//fr
-	-5.0f, 0.25f, -5.0f,  0,0,			
-
-	//bl
-	 5.0f, -0.25f,  5.0f,  10,10,		
-	//fr
-	-5.0f, 0.25f, -5.0f,  0,0,			
-	//br
-	 5.0f, 0.25f, -5.0f,  10,0,			
+	//tr
+	 5.0f, -0.25f,  5.0f,  10,10,
+	 //br
+	  5.0f, 0.25f, -5.0f,  10,0,
+	 //bl
+	 -5.0f, 0.25f, -5.0f,  0,0,
+	
+	//tr
+	 5.0f, -0.25f,  5.0f,  10,10,
+	 //bl
+	-5.0f, 0.25f, -5.0f,  0,0,
+	//tl
+	-5.0f, -0.25f,  5.0f,  0,10,
 };
 
 SCamera cam;
@@ -129,41 +135,39 @@ void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 void checkXSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs, vector<Face> nfs, int intX) {
 	//Positive X
 	if (intX > 0) {
-		intX = intX + 50;
-		for (int i = (2 * intX) / 200; i > 0; i--) {
+		intX = intX + 90;
+		for (int i = intX / 100; i > 0; i--) {
 			
 			for (auto v : nvs) {
-				v.position.x = v.position.x + i * 200;
+				v.position.x = v.position.x + i * 100;
 				vs.push_back(v);
 			}
 			for (auto f : nfs) {
-				f.v1.x = f.v1.x + i * 200;
-				f.v2.x = f.v2.x + i * 200;
-				f.v3.x = f.v3.x + i * 200;
+				f.v1.x = f.v1.x + i * 100;
+				f.v2.x = f.v2.x + i * 100;
+				f.v3.x = f.v3.x + i * 100;
 				fs.push_back(f);
 			}
 		}
 	}
 	//Negative X
 	else {
-		intX = intX - 50;
-		for (int i = (2 * intX) / 200; i < 0; i++) {
+		intX = intX - 90;
+		for (int i = intX / 100; i < 0; i++) {
 
 			for (auto v : nvs) {
-				v.position.x = v.position.x + i * 200;
+				v.position.x = v.position.x + i * 100;
 				vs.push_back(v);
 			}
 			for (auto f : nfs) {
-				f.v1.x = f.v1.x + i * 200;
-				f.v2.x = f.v2.x + i * 200;
-				f.v3.x = f.v3.x + i * 200;
+				f.v1.x = f.v1.x + i * 100;
+				f.v2.x = f.v2.x + i * 100;
+				f.v3.x = f.v3.x + i * 100;
 				fs.push_back(f);
 			}
 		}
 	}
 }
-
-
 
 void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Face> landFaces)
 {
@@ -234,6 +238,9 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -371,8 +378,7 @@ int main(int argc, char** argv)
 		landVertices = gentleSlopeVertices;
 		landFaces = gentleSlopeFaces;
 		checkXSpawnTerrain(landVertices, landFaces, gentleSlopeVertices, gentleSlopeFaces, cam.Position.x);
-		printf("%f\n", cam.Position.x);
-		printf("%d\n", landVertices.size());
+		//renderCloseOnly(landVertices, landFaces, cam.Position);
 		glBindVertexArray(VAO[1]);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * landVertices.size(), &landVertices[0], GL_STATIC_DRAW);
@@ -390,8 +396,7 @@ int main(int argc, char** argv)
 		glBindVertexArray(VAO[2]);
 		sea.positions.clear();
 		for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist)+10; x += 10) {
-			for (int z = -renderDist-20; z <= renderDist+20; z += 10) {
-				sea.positions.push_back(glm::vec3(x, -0, z));
+			for (int z = -renderDist-20; z <= renderDist/2; z += 10) {
 				sea.positions.push_back(glm::vec3(x, -0.25, z));
 				sea.positions.push_back(glm::vec3(x, -0.5, z));
 				sea.positions.push_back(glm::vec3(x, -0.75, z));
@@ -419,6 +424,7 @@ int main(int argc, char** argv)
 			model = glm::translate(model, glm::vec3(0, 0, sea.zOffset));
 			if ((int)it->second.z % 20 != 0) {
 				model = glm::rotate(model, glm::radians(180.f), glm::vec3(0,1,0));
+				glFrontFace(GL_CCW);
 			}
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
