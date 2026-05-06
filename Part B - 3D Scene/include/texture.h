@@ -9,6 +9,7 @@ GLuint setup_texture(const char* filename)
 	int w, h, chan;
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GLuint texObject;
 	glGenTextures(1, &texObject);
 	glBindTexture(GL_TEXTURE_2D, texObject);
@@ -19,7 +20,7 @@ GLuint setup_texture(const char* filename)
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* pixels = stbi_load(filename, &w, &h, &chan, 0);
 	if (pixels) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	}
 	delete[] pixels;
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -34,6 +35,7 @@ GLuint setup_mipmaps(const char* filename[], int n)
 	unsigned char* pixels[16];
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GLuint texObject;
 	glGenTextures(1, &texObject);
 	glBindTexture(GL_TEXTURE_2D, texObject);
@@ -45,7 +47,7 @@ GLuint setup_mipmaps(const char* filename[], int n)
 	for (int i = 0; i < n; i++) {
 		pixels[i] = stbi_load(filename[i], &w[i], &h[i], &chan[i], 0);
 		if (pixels[i]) {
-			glTexImage2D(GL_TEXTURE_2D, i, GL_RGB, w[i], h[i], 0, GL_RGB, GL_UNSIGNED_BYTE, pixels[i]);
+			glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, w[i], h[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels[i]);
 			delete[] pixels;
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_BLEND);

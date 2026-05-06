@@ -69,6 +69,8 @@ void obj_parse(std::vector<Vertex>& vertexArray, std::vector<Face>& faceArray, c
 				attribs.texcoords[index.texcoord_index * 2 + 1],
 			};
 
+			//vert.transparency = glm::vec1(1.f);
+
 			vertexArray.push_back(vert);
 		}
 	}

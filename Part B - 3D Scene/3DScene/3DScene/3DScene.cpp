@@ -69,40 +69,6 @@ float skyboxVertices[] = {
 	-0.5f,  0.5f,  0.5f,  0,6,
 	-0.5f,  0.5f, -0.5f,  0,0,
 };
-float sandboxVertices[] = {
-	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
-	//Front - sand
-	-0.5f, -0.5f,  0.5f,  0,0,
-	 0.5f, -0.5f,  0.5f,  50,0,
-	 0.5f,  0.f,  0.5f,  50,50,
-	 0.5f,  0.f,  0.5f,  50,50,
-	-0.5f,  0.f,  0.5f,  0,50,
-	-0.5f, -0.5f,  0.5f,  0,0,
-
-	//Left cut this
-	-0.5f,  0.f,  0.5f,  50,50,
-	-0.5f,  0.f, 0.f,  0,50,
-	-0.5f, -0.5f, 0.f,  0,0,
-	-0.5f, -0.5f, 0.f,  0,0,
-	-0.5f, -0.5f,  0.5f,  50,0,
-	-0.5f,  0.f,  0.5f,  50,50,
-
-	//Right cut this at zero 
-	 0.5f,  0.f,  0.5f,  50,50,
-	 0.5f,  0.f, 0.f,  0,50,
-	 0.5f, -0.5f, 0.f,  0,0,
-	 0.5f, -0.5f, 0.f,  0,0,
-	 0.5f, -0.5f,  0.5f,  50,0,
-	 0.5f,  0.f,  0.5f,  50,50,
-
-	 //bottom
-	-0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f, -0.5f,  50,0,
-	 0.5f, -0.5f,  0.5f,  50,50,
-	 0.5f, -0.5f,  0.5f,  50,50,
-	-0.5f, -0.5f,  0.5f,  0,50,
-	-0.5f, -0.5f, -0.5f,  0,0,
-};
 float seaboxVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 	//Back - sea
@@ -148,18 +114,18 @@ float sandVertices[] = {
 float seaVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 	//bl
-	 5.0f, -0.25f,  5.0f,  10,10,
+	 5.0f, -0.25f,  5.0f,  10,10,		
 	//fl
-	-5.0f, -0.25f,  5.0f,  0,10,
+	-5.0f, -0.25f,  5.0f,  0,10,		
 	//fr
-	-5.0f, 0.25f, -5.0f,  0,0,
+	-5.0f, 0.25f, -5.0f,  0,0,			
 
 	//bl
-	 5.0f, -0.25f,  5.0f,  10,10,
+	 5.0f, -0.25f,  5.0f,  10,10,		
 	//fr
-	-5.0f, 0.25f, -5.0f,  0,0,
+	-5.0f, 0.25f, -5.0f,  0,0,			
 	//br
-	 5.0f, 0.25f, -5.0f,  10,0,
+	 5.0f, 0.25f, -5.0f,  10,0,			
 };
 
 SCamera cam;
@@ -247,12 +213,10 @@ int main(int argc, char** argv)
 	glDebugMessageCallback((GLDEBUGPROC)DebugCallback, 0);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	//ENABLE BLENDING HERE
-
-	//SET BLEND FUNCTION HERE
 
 	unsigned int shaderProgram = CompileShader("triangle.vert", "triangle.frag");
 
@@ -266,12 +230,12 @@ int main(int argc, char** argv)
 	GLuint sandTexture = setup_texture("textures/sand.bmp");
 	GLuint nightSkyTexture = setup_texture("textures/night_sky.bmp");
 	GLuint soilTexture = setup_texture("textures/soil_cracked.bmp");
-	GLuint waterTexture = setup_texture("textures/water.bmp");
+	GLuint waterTexture = setup_texture("textures/water.png");
 
-	unsigned int VAO[5];
-	glGenVertexArrays(5, VAO);
-	unsigned int VBO[5];
-	glGenBuffers(5, VBO);
+	unsigned int VAO[4];
+	glGenVertexArrays(4, VAO);
+	unsigned int VBO[4];
+	glGenBuffers(4, VBO);
 
 	//INCLUDE ALPHA COORDINATE IN THE VAO HERE
 	//skybox
@@ -298,17 +262,9 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	//sandbox
+	//seabox
 	glBindVertexArray(VAO[3]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(sandboxVertices), sandboxVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	//sandbox
-	glBindVertexArray(VAO[4]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(seaboxVertices), seaboxVertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -358,6 +314,17 @@ int main(int argc, char** argv)
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//Seabox
+		model = glm::mat4(1.f);
+		glBindTexture(GL_TEXTURE_2D, waterTexture);
+		glBindVertexArray(VAO[3]);
+		model = glm::translate(model, glm::vec3(cam.Position.x, -.5f, cam.Position.z));
+		//model = glm::translate(model, glm::vec3(0, -2.5, 0));
+		//skybox size = 50 X 50 X 50 unit
+		model = glm::scale(model, glm::vec3(2 * renderDist, 2 * renderDist, 2 * renderDist));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 42);
+
 		//sand
 		glBindTexture(GL_TEXTURE_2D, sandTexture);
 		glBindVertexArray(VAO[1]);
@@ -393,6 +360,7 @@ int main(int argc, char** argv)
 				model = glm::rotate(model, glm::radians(180.f), glm::vec3(0,1,0));
 			}
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			//glUniform1f(glGetUniformLocation(shaderProgram, "blendAmount"), glm::float32(0.5));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 		//SORT THE TRANSPARENT TRIANGLE POSITIONS HERE
@@ -412,8 +380,8 @@ int main(int argc, char** argv)
 		processKeyboard(window, landVertices, landFaces);
 	}
 
-	glDeleteVertexArrays(3, VAO);
-	glDeleteBuffers(3, VBO);
+	glDeleteVertexArrays(4, VAO);
+	glDeleteBuffers(4, VBO);
 
 	glfwTerminate();
 

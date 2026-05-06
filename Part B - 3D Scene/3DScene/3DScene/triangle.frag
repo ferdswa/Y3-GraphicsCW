@@ -2,12 +2,12 @@
 
 layout (location = 0) out vec4 fColour;
 
-in vec3 col;
 in vec2 tex;
 
 uniform sampler2D Texture;
 
 void main()
 {
-	fColour=texture(Texture, tex);
+	vec4 tColour=texture(Texture, tex);
+	fColour = tColour;
 }
