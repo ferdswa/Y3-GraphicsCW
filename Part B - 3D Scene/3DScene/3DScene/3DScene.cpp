@@ -80,20 +80,20 @@ float seaboxVertices[] = {
 	-0.5f, -0.5f, -0.5f,  0,0,
 
 	//Left cut this
-	-0.5f,  0.f,  0.f,  50,50,
+	-0.5f,  0.f,  0.25f,  50,50,
 	-0.5f,  0.f, -0.5f,  0,50,
 	-0.5f, -0.5f, -0.5f,  0,0,
 	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f, -0.5f,  0.f,  50,0,
-	-0.5f,  0.f,  0.f,  50,50,
+	-0.5f, -0.5f,  0.25f,  50,0,
+	-0.5f,  0.f,  0.25f,  50,50,
 
 	//Right cut this at zero 
-	 0.5f,  0.f,  0.f,  50,50,
+	 0.5f,  0.f,  0.25f,  50,50,
 	 0.5f,  0.f, -0.5f,  0,50,
 	 0.5f, -0.5f, -0.5f,  0,0,
 	 0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f,  0.f,  50,0,
-	 0.5f,  0.f,  0.f,  50,50,
+	 0.5f, -0.5f,  0.25f,  50,0,
+	 0.5f,  0.f,  0.25f,  50,50,
 };
 float sandVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
@@ -225,13 +225,19 @@ int main(int argc, char** argv)
 	
 	std::vector<Vertex> landVertices;
 	std::vector<Face> landFaces;
+
+	std::vector<Vertex> flatVertices;
+	std::vector<Face> flatFaces;
+
 	obj_parse(landVertices, landFaces, "objs/bumpy_plane.obj");
+	obj_parse(flatVertices, flatFaces, "objs/flat_bumpy_plane.obj");
 
 
 	GLuint sandTexture = setup_texture("textures/sand.bmp");
 	GLuint nightSkyTexture = setup_texture("textures/night_sky.bmp");
 	GLuint soilTexture = setup_texture("textures/soil_cracked.bmp");
 	GLuint waterTexture = setup_texture("textures/water.png");
+	GLuint waterTextureOpaque = setup_texture("textures/water_opaque.png");
 
 	unsigned int VAO[4];
 	glGenVertexArrays(4, VAO);
@@ -318,12 +324,11 @@ int main(int argc, char** argv)
 
 		//Seabox
 		model = glm::mat4(1.f);
-		glBindTexture(GL_TEXTURE_2D, waterTexture);
+		glBindTexture(GL_TEXTURE_2D, waterTextureOpaque);
 		glBindVertexArray(VAO[3]);
 		model = glm::translate(model, glm::vec3(cam.Position.x, -.5f, cam.Position.z));
-		//model = glm::translate(model, glm::vec3(0, -2.5, 0));
 		//skybox size = 50 X 50 X 50 unit
-		model = glm::scale(model, glm::vec3(2 * renderDist, 2 * renderDist, 2 * renderDist));
+		model = glm::scale(model, glm::vec3(2 * renderDist -1, 2 * renderDist-1, 2 * renderDist-1));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 42);
 
@@ -345,33 +350,14 @@ int main(int argc, char** argv)
 				sea.positions.push_back(glm::vec3(x, -0.5, z));
 				sea.positions.push_back(glm::vec3(x, -0.75, z));
 				sea.positions.push_back(glm::vec3(x, -1, z));
-				sea.positions.push_back(glm::vec3(x, -1.25, z));
 				sea.positions.push_back(glm::vec3(x, -1.5, z));
-				sea.positions.push_back(glm::vec3(x, -1.75, z));
 				sea.positions.push_back(glm::vec3(x, -2, z));
-				//sea.positions.push_back(glm::vec3(x, -2.25, z));
 				sea.positions.push_back(glm::vec3(x, -2.5, z));
-				//sea.positions.push_back(glm::vec3(x, -2.75, z));
 				sea.positions.push_back(glm::vec3(x, -3, z));
-				//sea.positions.push_back(glm::vec3(x, -3.25, z));
-				//sea.positions.push_back(glm::vec3(x, -3.5, z));
-				//sea.positions.push_back(glm::vec3(x, -3.75, z));
 				sea.positions.push_back(glm::vec3(x, -4.0, z));
-				//sea.positions.push_back(glm::vec3(x, -4.25, z));
-				//sea.positions.push_back(glm::vec3(x, -4.5, z));
-				//sea.positions.push_back(glm::vec3(x, -4.75, z));
 				sea.positions.push_back(glm::vec3(x, -5, z));
-				//sea.positions.push_back(glm::vec3(x, -5.25, z));
-				//sea.positions.push_back(glm::vec3(x, -5.5, z));
-				//sea.positions.push_back(glm::vec3(x, -5.75, z));
 				sea.positions.push_back(glm::vec3(x, -6, z));
-				//sea.positions.push_back(glm::vec3(x, -6.25, z));
-				//sea.positions.push_back(glm::vec3(x, -6.5, z));
-				//sea.positions.push_back(glm::vec3(x, -6.75, z));
 				sea.positions.push_back(glm::vec3(x, -7, z));
-				//sea.positions.push_back(glm::vec3(x, -7.25, z));
-				//sea.positions.push_back(glm::vec3(x, -7.5, z));
-				//sea.positions.push_back(glm::vec3(x, -7.75, z));
 				sea.positions.push_back(glm::vec3(x, -8.0, z));
 			}
 		}
@@ -389,20 +375,8 @@ int main(int argc, char** argv)
 				model = glm::rotate(model, glm::radians(180.f), glm::vec3(0,1,0));
 			}
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			//glUniform1f(glGetUniformLocation(shaderProgram, "blendAmount"), glm::float32(0.5));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-		//SORT THE TRANSPARENT TRIANGLE POSITIONS HERE
-
-		/*glBindVertexArray(VAO[2]);
-		for (int i = 0; i < positions.size(); i++)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, positions[i]);
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-		}*/
-
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
