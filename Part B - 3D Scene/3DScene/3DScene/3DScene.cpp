@@ -132,38 +132,42 @@ void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 }
 
 
-void checkXSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs, vector<Face> nfs, int intX) {
+void checkXSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs, vector<Face> nfs, glm::vec3 camPos) {
 	//Positive X
-	if (intX > 0) {
-		intX = intX + 90;
+	if (camPos.x > 0) {
+		int intX = camPos.x + 90;
 		for (int i = intX / 100; i > 0; i--) {
 			
 			for (auto v : nvs) {
 				v.position.x = v.position.x + i * 100;
-				vs.push_back(v);
+				if(glm::length(camPos-v.position) < 170)//Def part of this terrain slice. Exclude others.
+					vs.push_back(v);
 			}
 			for (auto f : nfs) {
 				f.v1.x = f.v1.x + i * 100;
 				f.v2.x = f.v2.x + i * 100;
 				f.v3.x = f.v3.x + i * 100;
-				fs.push_back(f);
+				if (glm::length(camPos - f.v1) < 100 && glm::length(camPos - f.v2) < 100 && glm::length(camPos - f.v2) < 100)//Add face (def in slice) - not used for rendering just for collisions
+					fs.push_back(f);
 			}
 		}
 	}
 	//Negative X
 	else {
-		intX = intX - 90;
-		for (int i = intX / 100; i < 0; i++) {
+		int intX = camPos.x - 90;
+		for (int i = intX/ 100; i < 0; i++) {
 
 			for (auto v : nvs) {
 				v.position.x = v.position.x + i * 100;
-				vs.push_back(v);
+				if (glm::length(camPos - v.position) < 170)//Def part of this terrain slice. Exclude others.
+					vs.push_back(v);
 			}
 			for (auto f : nfs) {
 				f.v1.x = f.v1.x + i * 100;
 				f.v2.x = f.v2.x + i * 100;
 				f.v3.x = f.v3.x + i * 100;
-				fs.push_back(f);
+				if (glm::length(camPos - f.v1) < 100 && glm::length(camPos - f.v2) < 100 && glm::length(camPos - f.v2) < 100)//Add face (def in slice) - not used for rendering just for collisions
+					fs.push_back(f);
 			}
 		}
 	}
@@ -377,7 +381,7 @@ int main(int argc, char** argv)
 		
 		landVertices = gentleSlopeVertices;
 		landFaces = gentleSlopeFaces;
-		checkXSpawnTerrain(landVertices, landFaces, gentleSlopeVertices, gentleSlopeFaces, cam.Position.x);
+		checkXSpawnTerrain(landVertices, landFaces, gentleSlopeVertices, gentleSlopeFaces, cam.Position);
 		//renderCloseOnly(landVertices, landFaces, cam.Position);
 		glBindVertexArray(VAO[1]);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
@@ -390,6 +394,8 @@ int main(int argc, char** argv)
 		model = glm::mat4(1.0f);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, landVertices.size());
+
+		printf("%d\n", landVertices.size());
 
 		//sea
 		glBindTexture(GL_TEXTURE_2D, waterTexture);
