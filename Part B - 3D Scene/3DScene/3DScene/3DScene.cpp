@@ -203,6 +203,7 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 int main(int argc, char** argv)
 {
 	glfwInit();
+	glfwWindowHint(GLFW_SAMPLES, 8);
 	GLFWwindow* window = glfwCreateWindow(1920, 1080, "3D Scene - Maxim Carr - psymc9", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -286,6 +287,7 @@ int main(int argc, char** argv)
 	waves.detach();
 
 	processKeyboard(window, landVertices, landFaces);
+	MoveAndOrientCamera(cam, 1, 0, maxx/2, maxy/2, maxx, maxy);
 	while (!glfwWindowShouldClose(window))
 	{
 		static const GLfloat bgd[] = { 0.f, 0.f, .36f, 1.f };
@@ -351,12 +353,17 @@ int main(int argc, char** argv)
 				sea.positions.push_back(glm::vec3(x, -8.0, z));
 			}
 		}
-		
+		std::map<float, glm::vec3> sorted;
 		for (int seI = 0; seI < sea.positions.size(); seI++) {
+			glm::vec3 v = cam.Position - sea.positions[seI];
+			float l = glm::length(v);
+			sorted[l] = sea.positions[seI];
+		}
+		for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, sea.positions[seI]);
+			model = glm::translate(model, it->second);
 			model = glm::translate(model, glm::vec3(0, 0, sea.zOffset));
-			if ((int)sea.positions[seI].z % 20 != 0) {
+			if ((int)it->second.z % 20 != 0) {
 				model = glm::rotate(model, glm::radians(180.f), glm::vec3(0,1,0));
 			}
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
