@@ -125,7 +125,7 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vecto
 	float u, v, w;
 	for (int index = 0; index < vertices.size(); index++) {
 		//Closest to camera's position
-		glm::vec3 v = glm::vec3(in.Position.x, 0, in.Position.z) - glm::vec3(vertices[index].position.x, 0, vertices[index].position.z);
+		glm::vec3 v = in.Position - vertices[index].position;
 		double l = glm::length(v);
 		sortedVertices[l] = vertices[index].position;
 	}
@@ -135,7 +135,10 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vecto
 	std::copy_if(faces.begin(), faces.end(), std::back_inserter(facesFiltered), [closest](Face iFace) {return (iFace.v1 == closest || iFace.v2 == closest || iFace.v3 == closest); });
 	for (auto& face : facesFiltered) {
 		if (checkIntersect(in.Position, face.v1, face.v2, face.v3)) {
-			in.groundOffset = yCalc(face.v1, face.v2, face.v3, in.Position.x, in.Position.z);
+			if(in.Position.z > 5)
+				in.groundOffset = abs(yCalc(face.v1, face.v2, face.v3, in.Position.x, in.Position.z));
+			else
+				in.groundOffset = yCalc(face.v1, face.v2, face.v3, in.Position.x, in.Position.z);
 			break;
 		}
 	}

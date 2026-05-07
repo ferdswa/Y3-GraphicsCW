@@ -120,8 +120,11 @@ float seaVertices[] = {
 
 SCamera cam;
 STerrain sea;
-glm::vec3 lightDirection(-5.f, -10.f, 20.f);
-glm::vec3 moonPos = -1.f * lightDirection;
+glm::vec3 moonLightDir(-5.f, -10.f, 20.f);
+glm::vec3 moonPos = -1.f * moonLightDir;
+glm::vec3 flashLightColour(0,0,0);
+glm::vec3 flashLightPos(0, 0, 0);
+glm::vec3 flashLightDir;
 float FoV = 45.f;
 double oldX, oldY;
 int maxx, maxy;
@@ -245,19 +248,6 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 	glfwGetWindowSize(window, &maxx, &maxy);
 	glfwSetCursorPos(window, (double)maxx / 2, (double)maxy / 2);
 
-	/*glm::vec3 v1 = glm::vec3(seaVertices[0], seaVertices[1], seaVertices[2]);
-	glm::vec3 v2 = glm::vec3(seaVertices[5], seaVertices[6], seaVertices[7]);
-	glm::vec3 v3 = glm::vec3(seaVertices[10], seaVertices[11], seaVertices[12]);
-	glm::vec3 a = glm::normalize(glm::cross(v2 - v1, v3 - v1));
-	printf("%f,%f,%f\n", a.x,a.y,a.z);
-
-	glm::vec3 v10 = glm::vec3(seaVertices[15], seaVertices[16], seaVertices[17]);
-	glm::vec3 v20 = glm::vec3(seaVertices[20], seaVertices[21], seaVertices[22]);
-	glm::vec3 v30 = glm::vec3(seaVertices[25], seaVertices[26], seaVertices[27]);
-	glm::vec3 a0 = glm::normalize(glm::cross(v20 - v10, v30 - v10));
-	printf("%f,%f,%f\n", a0.x,a0.y,a0.z);*/
-
-
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		zoffset = 2.f * frameTimeDif;
 	}
@@ -274,8 +264,15 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 		xoffset /= 2;
 		zoffset /= 2;
 	}
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+		flashLightDir = cam.Front;
+		flashLightPos = cam.Position;
+		flashLightColour = glm::vec3(2.55, 1.91, 0);
+	}
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE) {
+		flashLightColour = glm::vec3(0, 0, 0);
+	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-		//Replace with height test for bumpy plane
 		cam.Height = 1.5f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
@@ -428,9 +425,12 @@ int main(int argc, char** argv)
 
 		glPolygonMode(GL_FRONT, GL_FILL);
 
-		glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), moonLightDir.x, moonLightDir.y, moonLightDir.z);
 		glUniform3f(glGetUniformLocation(shaderProgram, "lightColour"), 1.f, 1.f, 1.f);
 		glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), cam.Position.x, cam.Position.y, cam.Position.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "flashLightPos"), flashLightPos.x, flashLightPos.y, flashLightPos.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "flashLightCol"), flashLightColour.x, flashLightColour.y, flashLightColour.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "flashLightDir"), flashLightDir.x, flashLightDir.y, flashLightDir.z);
 
 		glm::mat4 view = glm::mat4(1.f);
 		view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
@@ -449,6 +449,7 @@ int main(int argc, char** argv)
 		//skybox size = 50 X 50 X 50 unit
 		model = glm::scale(model, glm::vec3(2*renderDist, 2*renderDist, 2*renderDist));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		//Set type to 1 to ensure the stars always get drawn
 		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 1);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		
