@@ -7,10 +7,12 @@ layout (location = 2) in vec3 vNor;
 out vec2 tex;
 out vec3 nor;
 out vec3 FragPosWorldSpace;
+out vec4 FragPosProjectedLightSpace;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 projectedLightSpaceMatrix;
 
 void main()
 {
@@ -18,4 +20,5 @@ void main()
 	tex = vTex;
 	nor = mat3(transpose(inverse(model))) * vNor;
 	FragPosWorldSpace = vec3(model * vPos);
+	FragPosProjectedLightSpace = projectedLightSpaceMatrix*model*vPos;
 }

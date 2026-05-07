@@ -16,6 +16,11 @@
 #include "texture.h"
 #include "terrain.h"
 #include "load_object.h"
+#include "shadow.h"
+#define WIDTH 1024
+#define HEIGHT 768
+#define SH_MAP_WIDTH 2048
+#define SH_MAP_HEIGHT 2048
 using namespace std;
 
 float skyboxVertices[] = {
@@ -121,13 +126,12 @@ float seaVertices[] = {
 SCamera cam;
 STerrain sea;
 glm::vec3 moonLightDir(-5.f, -10.f, 20.f);
-glm::vec3 moonPos = -1.f * moonLightDir;
+glm::vec3 moonPos = -moonLightDir;
 glm::vec3 flashLightColour(0,0,0);
 glm::vec3 flashLightPos(0, 0, 0);
 glm::vec3 flashLightDir;
 float FoV = 45.f;
 double oldX, oldY;
-int maxx, maxy;
 int renderDist = 50;
 
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
@@ -245,8 +249,7 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 
 	//Get and reset cursor pos
 	glfwGetCursorPos(window, &xpos, &ypos);
-	glfwGetWindowSize(window, &maxx, &maxy);
-	glfwSetCursorPos(window, (double)maxx / 2, (double)maxy / 2);
+	glfwSetCursorPos(window, (double)WIDTH / 2, (double)HEIGHT / 2);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		zoffset = 2.f * frameTimeDif;
@@ -285,17 +288,164 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 		t.detach();
 	}
 	CalculateGroundOffset(cam, landVertices, landFaces);
-	MoveAndOrientCamera(cam, xoffset, zoffset, xpos, ypos, maxx, maxy);
+	MoveAndOrientCamera(cam, xoffset, zoffset, xpos, ypos, WIDTH, HEIGHT);
 	oldX = xpos;
 	oldY = ypos;
 	lastFrameTime = cFrameTime;
+}
+
+void drawObjects(unsigned int VAO[5], unsigned int VBO[5], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, GLuint shaderProgram, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar) {
+	glUseProgram(shaderProgram);
+	glm::mat4 model = glm::mat4(1.f); 
+	//skybox
+	glBindTexture(GL_TEXTURE_2D, nightSkyTexture);
+	glBindVertexArray(VAO[0]);
+	model = glm::translate(model, cam.Position);
+	//skybox size = 100 X 100 X 100 unit
+	model = glm::scale(model, glm::vec3(2 * renderDist, 2 * renderDist, 2 * renderDist));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	//Set type to 1 to ensure the stars always get drawn
+	glUniform1i(glGetUniformLocation(shaderProgram, "type"), 1);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	//Seabox
+	model = glm::mat4(1.f);
+	glBindTexture(GL_TEXTURE_2D, waterTextureOpaque);
+	glBindVertexArray(VAO[3]);
+	model = glm::translate(model, glm::vec3(cam.Position.x, -.5f, cam.Position.z));
+	//skybox size = 100 X 100 X 100 unit
+	model = glm::scale(model, glm::vec3(2 * renderDist - 1, 2 * renderDist - 1, 2 * renderDist - 1));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
+	glDrawArrays(GL_TRIANGLES, 0, 42);
+
+	//sand
+	landVerticesVar.clear();
+	landFacesVar.clear();
+	checkXSpawnTerrain(landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, cam.Position);
+	if (landVerticesVar.size() > 0) {
+		glBindVertexArray(VAO[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * landVerticesVar.size(), &landVerticesVar[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		glBindTexture(GL_TEXTURE_2D, sandTexture);
+		model = glm::mat4(1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
+		glDrawArrays(GL_TRIANGLES, 0, landVerticesVar.size());
+	}
+
+	//grass/flatlands
+	flatVerticesVar.clear();
+	checkZSpawnTerrain(flatVerticesVar, landFacesVar, flatVerticesConst, flatFacesConst, cam.Position);
+	if (flatVerticesVar.size() > 0) {
+		glBindVertexArray(VAO[4]);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * flatVerticesVar.size(), &flatVerticesVar[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		glBindTexture(GL_TEXTURE_2D, grassTexture);
+		model = glm::mat4(1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
+		glDrawArrays(GL_TRIANGLES, 0, flatVerticesVar.size());
+	}
+
+	//sea
+	glBindTexture(GL_TEXTURE_2D, waterTexture);
+	glBindVertexArray(VAO[2]);
+	sea.positions.clear();
+	for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist) + 10; x += 10) {
+		for (int z = -renderDist - 20; z <= renderDist / 2; z += 10) {
+			sea.positions.push_back(glm::vec3(x, -0.25, z));
+			sea.positions.push_back(glm::vec3(x, -0.5, z));
+			sea.positions.push_back(glm::vec3(x, -0.75, z));
+			sea.positions.push_back(glm::vec3(x, -1, z));
+			sea.positions.push_back(glm::vec3(x, -1.5, z));
+			sea.positions.push_back(glm::vec3(x, -2, z));
+			sea.positions.push_back(glm::vec3(x, -2.5, z));
+			sea.positions.push_back(glm::vec3(x, -3, z));
+			sea.positions.push_back(glm::vec3(x, -4.0, z));
+			sea.positions.push_back(glm::vec3(x, -5, z));
+			sea.positions.push_back(glm::vec3(x, -6, z));
+			sea.positions.push_back(glm::vec3(x, -7, z));
+		}
+	}
+	std::map<float, glm::vec3> sorted;
+	for (int seI = 0; seI < sea.positions.size(); seI++) {
+		glm::vec3 v = cam.Position - sea.positions[seI];
+		float l = glm::length(v);
+		sorted[l] = sea.positions[seI];
+	}
+	for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, it->second);
+		model = glm::translate(model, glm::vec3(0, 0, sea.zOffset));
+		if ((int)it->second.z % 20 != 0) {
+			model = glm::rotate(model, glm::radians(180.f), glm::vec3(0, 1, 0));
+			glFrontFace(GL_CCW);
+		}
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+}
+
+void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[5], unsigned int VBO[5], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar)
+{
+	glViewport(0, 0, SH_MAP_WIDTH, SH_MAP_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow.FBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glUseProgram(shadowShaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shadowShaderProgram, "projectedLightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(projectedLightSpaceMatrix));
+	drawObjects(VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, shadowShaderProgram, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void renderWithShadow(unsigned int renderShadowProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[5], unsigned int VBO[5], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar) {
+
+	glViewport(0, 0, WIDTH, HEIGHT);
+
+	static const GLfloat bgd[] = { 0.f, 0.f, .36f, 1.f };
+	glClearBufferfv(GL_COLOR, 0, bgd);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glUseProgram(renderShadowProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, shadow.Texture);
+	glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "projectedLightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(projectedLightSpaceMatrix));
+	glUniform3f(glGetUniformLocation(renderShadowProgram, "lightDirection"), moonLightDir.x, moonLightDir.y, moonLightDir.z);
+	glUniform3f(glGetUniformLocation(renderShadowProgram, "lightColour"), 1.f, 1.f, 1.f);
+	glUniform3f(glGetUniformLocation(renderShadowProgram, "camPos"), cam.Position.x, cam.Position.y, cam.Position.z);
+	glUniform3f(glGetUniformLocation(renderShadowProgram, "flashLightPos"), flashLightPos.x, flashLightPos.y, flashLightPos.z);
+	glUniform3f(glGetUniformLocation(renderShadowProgram, "flashLightCol"), flashLightColour.x, flashLightColour.y, flashLightColour.z);
+	glUniform3f(glGetUniformLocation(renderShadowProgram, "flashLightDir"), flashLightDir.x, flashLightDir.y, flashLightDir.z);
+
+	glm::mat4 view = glm::mat4(1.f);
+	view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
+	glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+	glm::mat4 projection = glm::mat4(1.f);
+	projection = glm::perspective(glm::radians(FoV), (float)WIDTH / (float)HEIGHT, .1f, 100.f);
+	glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+	drawObjects(VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, renderShadowProgram, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar);
 }
 
 int main(int argc, char** argv)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_SAMPLES, 8);
-	GLFWwindow* window = glfwCreateWindow(1920, 1080, "3D Scene - Maxim Carr - psymc9", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "3D Scene - Maxim Carr - psymc9", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -313,11 +463,13 @@ int main(int argc, char** argv)
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	unsigned int shaderProgram = CompileShader("triangle.vert", "triangle.frag");
+	ShadowStruct shadow = setup_shadowmap(SH_MAP_WIDTH, SH_MAP_HEIGHT);
+
+	GLuint shaderProgram = CompileShader("triangle.vert", "triangle.frag");
+	GLuint shadowProgram = CompileShader("shadow.vert", "shadow.frag");
 
 	InitCamera(cam);
 	
-
 	//Get terrain and set spawn = a gentle slope
 	std::vector<Vertex> landVerticesVar;
 	std::vector<Face> landFacesVar;
@@ -406,7 +558,7 @@ int main(int argc, char** argv)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-	glUseProgram(shaderProgram);
+	//glUseProgram(shaderProgram);
 
 	sea.tSize = 10;
 	sea.tSpeed = 1.f;
@@ -416,130 +568,21 @@ int main(int argc, char** argv)
 	waves.detach();
 
 	processKeyboard(window, landVerticesVar, landFacesVar);
-	MoveAndOrientCamera(cam, 1, 0, maxx/2, maxy/2, maxx, maxy);
+	MoveAndOrientCamera(cam, 1, 0, WIDTH/2, HEIGHT/2, WIDTH, HEIGHT);
 	while (!glfwWindowShouldClose(window))
 	{
-		static const GLfloat bgd[] = { 0.f, 0.f, .36f, 1.f };
-		glClearBufferfv(GL_COLOR, 0, bgd);
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-		glPolygonMode(GL_FRONT, GL_FILL);
-
-		glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), moonLightDir.x, moonLightDir.y, moonLightDir.z);
-		glUniform3f(glGetUniformLocation(shaderProgram, "lightColour"), 1.f, 1.f, 1.f);
-		glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), cam.Position.x, cam.Position.y, cam.Position.z);
-		glUniform3f(glGetUniformLocation(shaderProgram, "flashLightPos"), flashLightPos.x, flashLightPos.y, flashLightPos.z);
-		glUniform3f(glGetUniformLocation(shaderProgram, "flashLightCol"), flashLightColour.x, flashLightColour.y, flashLightColour.z);
-		glUniform3f(glGetUniformLocation(shaderProgram, "flashLightDir"), flashLightDir.x, flashLightDir.y, flashLightDir.z);
-
-		glm::mat4 view = glm::mat4(1.f);
-		view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
-		glm::mat4 projection = glm::mat4(1.f);
-		projection = glm::perspective(glm::radians(FoV), (float)maxx/ (float)maxy, .1f, 100.f);
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-		glm::mat4 model = glm::mat4(1.f);
-
-		//skybox
-		glBindTexture(GL_TEXTURE_2D, nightSkyTexture);
-		glBindVertexArray(VAO[0]);
+		glm::mat4 model(1.f);
+		float near_plane = 0.1f, far_plane = 150.f;
 		model = glm::translate(model, cam.Position);
-		//skybox size = 50 X 50 X 50 unit
-		model = glm::scale(model, glm::vec3(2*renderDist, 2*renderDist, 2*renderDist));
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//Set type to 1 to ensure the stars always get drawn
-		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 1);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		
-		//Seabox
-		model = glm::mat4(1.f);
-		glBindTexture(GL_TEXTURE_2D, waterTextureOpaque);
-		glBindVertexArray(VAO[3]);
-		model = glm::translate(model, glm::vec3(cam.Position.x, -.5f, cam.Position.z));
-		//skybox size = 50 X 50 X 50 unit
-		model = glm::scale(model, glm::vec3(2 * renderDist -1, 2 * renderDist-1, 2 * renderDist-1));
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
-		glDrawArrays(GL_TRIANGLES, 0, 42);
+		glm::mat4 lProj = glm::ortho(75.f, -75.f, -8.f, 50.f, near_plane, far_plane);
+		glm::mat4 lView = glm::lookAt(moonPos, cam.Position, glm::vec3(0, 1, 0));
+		glm::mat4 lPVMat = lProj * lView * model;
 
-		//sand
-		landVerticesVar.clear();
-		landFacesVar.clear();
-		checkXSpawnTerrain(landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, cam.Position);
-		if (landVerticesVar.size() > 0) {
-			glBindVertexArray(VAO[1]);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * landVerticesVar.size(), &landVerticesVar[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-			glEnableVertexAttribArray(1);
-			glBindTexture(GL_TEXTURE_2D, sandTexture);
-			model = glm::mat4(1.0f);
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
-			glDrawArrays(GL_TRIANGLES, 0, landVerticesVar.size());
-		}
+		generateDepthMap(shadowProgram, shadow, lPVMat, VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar);
 
-		//grass/flatlands
-		flatVerticesVar.clear();
-		checkZSpawnTerrain(flatVerticesVar, landFacesVar, flatVerticesConst, flatFacesConst, cam.Position);
-		printf("%f\n", cam.Position.x);
-		if (flatVerticesVar.size() > 0) {
-			glBindVertexArray(VAO[4]);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * flatVerticesVar.size(), &flatVerticesVar[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-			glEnableVertexAttribArray(1);
-			glBindTexture(GL_TEXTURE_2D, grassTexture);
-			model = glm::mat4(1.0f);
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
-			glDrawArrays(GL_TRIANGLES, 0, flatVerticesVar.size());
-		}
 
-		//sea
-		glBindTexture(GL_TEXTURE_2D, waterTexture);
-		glBindVertexArray(VAO[2]);
-		sea.positions.clear();
-		for (int x = min(float(-renderDist), cam.Position.x - renderDist); x <= max(float(renderDist), cam.Position.x + renderDist)+10; x += 10) {
-			for (int z = -renderDist-20; z <= renderDist/2; z += 10) {
-				sea.positions.push_back(glm::vec3(x, -0.25, z));
-				sea.positions.push_back(glm::vec3(x, -0.5, z));
-				sea.positions.push_back(glm::vec3(x, -0.75, z));
-				sea.positions.push_back(glm::vec3(x, -1, z));
-				sea.positions.push_back(glm::vec3(x, -1.5, z));
-				sea.positions.push_back(glm::vec3(x, -2, z));
-				sea.positions.push_back(glm::vec3(x, -2.5, z));
-				sea.positions.push_back(glm::vec3(x, -3, z));
-				sea.positions.push_back(glm::vec3(x, -4.0, z));
-				sea.positions.push_back(glm::vec3(x, -5, z));
-				sea.positions.push_back(glm::vec3(x, -6, z));
-				sea.positions.push_back(glm::vec3(x, -7, z));
-			}
-		}
-		std::map<float, glm::vec3> sorted;
-		for (int seI = 0; seI < sea.positions.size(); seI++) {
-			glm::vec3 v = cam.Position - sea.positions[seI];
-			float l = glm::length(v);
-			sorted[l] = sea.positions[seI];
-		}
-		for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, it->second);
-			model = glm::translate(model, glm::vec3(0, 0, sea.zOffset));
-			if ((int)it->second.z % 20 != 0) {
-				model = glm::rotate(model, glm::radians(180.f), glm::vec3(0,1,0));
-				glFrontFace(GL_CCW);
-			}
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
+		renderWithShadow(shaderProgram, shadow, lPVMat, VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar);
+
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();

@@ -47,6 +47,9 @@
     <ClInclude Include="..\..\include\shadow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle.frag">
@@ -56,5 +59,11 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="shadow.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shadow.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

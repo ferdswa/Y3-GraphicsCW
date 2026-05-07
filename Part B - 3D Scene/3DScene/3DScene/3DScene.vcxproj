@@ -136,6 +136,7 @@
     <ClInclude Include="..\..\include\camera.h" />
     <ClInclude Include="..\..\include\file.h" />
     <ClInclude Include="..\..\include\load_object.h" />
+    <ClInclude Include="..\..\include\point.h" />
     <ClInclude Include="..\..\include\shader.h" />
     <ClInclude Include="..\..\include\shadow.h" />
     <ClInclude Include="..\..\include\terrain.h" />
@@ -143,6 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shadow.frag" />
+    <None Include="shadow.vert" />
     <None Include="triangle.frag" />
     <None Include="triangle.vert" />
   </ItemGroup>

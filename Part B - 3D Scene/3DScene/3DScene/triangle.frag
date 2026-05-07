@@ -5,7 +5,9 @@ layout (location = 0) out vec4 fColour;
 in vec2 tex;
 in vec3 nor;
 in vec3 FragPosWorldSpace;
+in vec4 FragPosProjectedLightSpace;
 
+uniform sampler2D shadowMap;
 uniform sampler2D Texture;
 uniform vec3 lightDirection;
 uniform vec3 lightColour;
@@ -16,6 +18,23 @@ uniform vec3 flashLightDir;
 uniform vec3 flashLightCol;
 
 uniform int type;
+
+float shadowOnFragment(vec4 FragPosProjectedLightSpace){
+	vec3 ndc = FragPosProjectedLightSpace.xyz / FragPosProjectedLightSpace.w;
+	vec3 ss = (ndc+1)*0.5;
+
+	float fragDepth = ss.z;
+	float shadow = 0.f;
+	float litDepth = texture(shadowMap, ss.xy).r;
+
+	vec3 Nnor = normalize(nor);
+	vec3 NtoLight = normalize(-lightDirection);
+	float bias = max(0.05 *(1.0-dot(Nnor, NtoLight)),0.005);
+
+	shadow = fragDepth > (litDepth+bias) ? 1.0 : 0.0;
+
+	return shadow;
+}
 
 float CalculateDirectionalIllumination(){
 	float amb = 0.1;
@@ -29,6 +48,8 @@ float CalculateDirectionalIllumination(){
 	vec3 camDirection = camPos - FragPosWorldSpace;
 	vec3 NcamDirection = normalize(camDirection);
 	float specular = max(0,pow(dot(NcamDirection, nreflight),128));
+	//float shadow = shadowOnFragment(FragPosProjectedLightSpace);
+	//float phong = amb + ((1-shadow) * (diffuse+specular));
 	float phong = amb + diffuse + specular;
 	return phong;
 }
