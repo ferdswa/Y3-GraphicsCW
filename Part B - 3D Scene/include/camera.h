@@ -118,6 +118,7 @@ bool checkIntersect(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
 
 //Calculate how much to bump the camera up by.
 //Cam above 3 vertices AND vertices form a face.
+//TODO: set abs(y) for when z is > 10
 void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vector<Face> faces) {
 	glm::vec3 d = in.WorldUp * -1.0f;
 	std::map<double, glm::vec3> sortedVertices;

@@ -22,84 +22,84 @@ float skyboxVertices[] = {
 	// positions          // uv			//norm
 
 	//-z
-	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
-	 0.5f, -0.5f, -0.5f,  6,0,			0,0,-1,
-	 0.5f,  0.5f, -0.5f,  6,6,			0,0,-1,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,1,
+	 0.5f, -0.5f, -0.5f,  6,0,			0,0,1,
+	 0.5f,  0.5f, -0.5f,  6,6,			0,0,1,
 
-	 0.5f,  0.5f, -0.5f,  6,6,			0,0,-1,
-	-0.5f,  0.5f, -0.5f,  0,6,			0,0,-1,
-	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
+	 0.5f,  0.5f, -0.5f,  6,6,			0,0,1,
+	-0.5f,  0.5f, -0.5f,  0,6,			0,0,1,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,1,
 
 	//+z
-	-0.5f, -0.5f,  0.5f,  0,0,			0,0,1,
-	0.5f,  0.5f,  0.5f,  6,6,			0,0,1,
-	 0.5f, -0.5f,  0.5f,  6,0,			0,0,1,
+	-0.5f, -0.5f,  0.5f,  0,0,			0,0,-1,
+	0.5f,  0.5f,  0.5f,  6,6,			0,0,-1,
+	 0.5f, -0.5f,  0.5f,  6,0,			0,0,-1,
 
-	 0.5f,  0.5f,  0.5f,  6,6,			0,0,1,
-	 -0.5f, -0.5f,  0.5f,  0,0,			0,0,1,
-	-0.5f,  0.5f,  0.5f,  0,6,			0,0,1,
+	 0.5f,  0.5f,  0.5f,  6,6,			0,0,-1,
+	 -0.5f, -0.5f,  0.5f,  0,0,			0,0,-1,
+	-0.5f,  0.5f,  0.5f,  0,6,			0,0,-1,
 
 	//-x
-	-0.5f,  0.5f,  0.5f,  6,6,			-1,0,0,
-	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
-	-0.5f,  0.5f, -0.5f,  0,6,			-1,0,0,
+	-0.5f,  0.5f,  0.5f,  6,6,			1,0,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	-0.5f,  0.5f, -0.5f,  0,6,			1,0,0,
 	
-	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
-	-0.5f,  0.5f,  0.5f,  6,6,			-1,0,0,
-	-0.5f, -0.5f,  0.5f,  6,0,			-1,0,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	-0.5f,  0.5f,  0.5f,  6,6,			1,0,0,
+	-0.5f, -0.5f,  0.5f,  6,0,			1,0,0,
 	
 
 	//+x
-	 0.5f,  0.5f,  0.5f,  6,6,			1,0,0,
-	 0.5f,  0.5f, -0.5f,  0,6,			1,0,0,
-	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
-	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
-	 0.5f, -0.5f,  0.5f,  6,0,			1,0,0,
-	 0.5f,  0.5f,  0.5f,  6,6,			1,0,0,
+	 0.5f,  0.5f,  0.5f,  6,6,			-1,0,0,
+	 0.5f,  0.5f, -0.5f,  0,6,			-1,0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
+	 0.5f, -0.5f,  0.5f,  6,0,			-1,0,0,
+	 0.5f,  0.5f,  0.5f,  6,6,			-1,0,0,
 
 	 //-y
-	-0.5f, -0.5f, -0.5f,  0,0,			0,-1,0,
-	 0.5f, -0.5f, -0.5f,  6,0,			0,-1,0,
-	 0.5f, -0.5f,  0.5f,  6,6,			0,-1,0,
-	 0.5f, -0.5f,  0.5f,  6,6,			0,-1,0,
-	-0.5f, -0.5f,  0.5f,  0,6,			0,-1,0,
-	-0.5f, -0.5f, -0.5f,  0,0,			0,-1,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,1,0,
+	 0.5f, -0.5f, -0.5f,  6,0,			0,1,0,
+	 0.5f, -0.5f,  0.5f,  6,6,			0,1,0,
+	 0.5f, -0.5f,  0.5f,  6,6,			0,1,0,
+	-0.5f, -0.5f,  0.5f,  0,6,			0,1,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,1,0,
 
 	//+y
-	-0.5f,  0.5f, -0.5f,  0,0,			0,1,0,
-	 0.5f,  0.5f, -0.5f,  6,0,			0,1,0,
-	 0.5f,  0.5f,  0.5f,  6,6,			0,1,0,
-	 0.5f,  0.5f,  0.5f,  6,6,			0,1,0,
-	-0.5f,  0.5f,  0.5f,  0,6,			0,1,0,
-	-0.5f,  0.5f, -0.5f,  0,0,			0,1,0,
+	-0.5f,  0.5f, -0.5f,  0,0,			0,-1,0,
+	 0.5f,  0.5f, -0.5f,  6,0,			0,-1,0,
+	 0.5f,  0.5f,  0.5f,  6,6,			0,-1,0,
+	 0.5f,  0.5f,  0.5f,  6,6,			0,-1,0,
+	-0.5f,  0.5f,  0.5f,  0,6,			0,-1,0,
+	-0.5f,  0.5f, -0.5f,  0,0,			0,-1,0,
 };
 float seaboxVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 	//-z
-	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
-	 0.5f, -0.5f, -0.5f,  6,0,			0,0,-1,
-	 0.5f,  0.f, -0.5f,  6,6,			0,0,-1,
-	 0.5f,  0.f, -0.5f,  6,6,			0,0,-1,
-	-0.5f,  0.f, -0.5f,  0,6,			0,0,-1,
-	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,1,
+	 0.5f, -0.5f, -0.5f,  6,0,			0,0,1,
+	 0.5f,  0.f, -0.5f,  6,6,			0,0,1,
+	 0.5f,  0.f, -0.5f,  6,6,			0,0,1,
+	-0.5f,  0.f, -0.5f,  0,6,			0,0,1,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,1,
 
 	//-x
-	-0.5f,  0.f,  0.25f,  50,50,		-1,0,0,
-	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
-	-0.5f,  0.f, -0.5f,  0,50,			-1,0,0,
+	-0.5f,  0.f,  0.25f,  50,50,		1,0,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	-0.5f,  0.f, -0.5f,  0,50,			1,0,0,
 	
-	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
-	-0.5f,  0.f,  0.25f,  50,50,		-1,0,0,
-	-0.5f, -0.5f,  0.25f,  50,0,		-1,0,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	-0.5f,  0.f,  0.25f,  50,50,		1,0,0,
+	-0.5f, -0.5f,  0.25f,  50,0,		1,0,0,
 	
 	//+x 
-	 0.5f,  0.f,  0.25f,  50,50,		1,0,0,
-	 0.5f,  0.f, -0.5f,  0,50,			1,0,0,
-	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	 0.5f,  0.f,  0.25f,  50,50,		-1,0,0,
+	 0.5f,  0.f, -0.5f,  0,50,			-1,0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
 
-	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
-	 0.5f, -0.5f,  0.25f,  50,0,		1,0,0,
-	 0.5f,  0.f,  0.25f,  50,50,		1,0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
+	 0.5f, -0.5f,  0.25f,  50,0,		-1,0,0,
+	 0.5f,  0.f,  0.25f,  50,50,		-1,0,0,
 };
 float seaVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
@@ -120,7 +120,8 @@ float seaVertices[] = {
 
 SCamera cam;
 STerrain sea;
-STerrain land;
+glm::vec3 lightDirection(-5.f, -10.f, 20.f);
+glm::vec3 moonPos = -1.f * lightDirection;
 float FoV = 45.f;
 double oldX, oldY;
 int maxx, maxy;
@@ -244,7 +245,7 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 	glfwGetWindowSize(window, &maxx, &maxy);
 	glfwSetCursorPos(window, (double)maxx / 2, (double)maxy / 2);
 
-	glm::vec3 v1 = glm::vec3(seaVertices[0], seaVertices[1], seaVertices[2]);
+	/*glm::vec3 v1 = glm::vec3(seaVertices[0], seaVertices[1], seaVertices[2]);
 	glm::vec3 v2 = glm::vec3(seaVertices[5], seaVertices[6], seaVertices[7]);
 	glm::vec3 v3 = glm::vec3(seaVertices[10], seaVertices[11], seaVertices[12]);
 	glm::vec3 a = glm::normalize(glm::cross(v2 - v1, v3 - v1));
@@ -254,7 +255,7 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 	glm::vec3 v20 = glm::vec3(seaVertices[20], seaVertices[21], seaVertices[22]);
 	glm::vec3 v30 = glm::vec3(seaVertices[25], seaVertices[26], seaVertices[27]);
 	glm::vec3 a0 = glm::normalize(glm::cross(v20 - v10, v30 - v10));
-	printf("%f,%f,%f\n", a0.x,a0.y,a0.z);
+	printf("%f,%f,%f\n", a0.x,a0.y,a0.z);*/
 
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -427,7 +428,10 @@ int main(int argc, char** argv)
 
 		glPolygonMode(GL_FRONT, GL_FILL);
 
-		
+		glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
+		glUniform3f(glGetUniformLocation(shaderProgram, "lightColour"), 1.f, 1.f, 1.f);
+		glUniform3f(glGetUniformLocation(shaderProgram, "camPos"), cam.Position.x, cam.Position.y, cam.Position.z);
+
 		glm::mat4 view = glm::mat4(1.f);
 		view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -445,8 +449,9 @@ int main(int argc, char** argv)
 		//skybox size = 50 X 50 X 50 unit
 		model = glm::scale(model, glm::vec3(2*renderDist, 2*renderDist, 2*renderDist));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 1);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
+		
 		//Seabox
 		model = glm::mat4(1.f);
 		glBindTexture(GL_TEXTURE_2D, waterTextureOpaque);
@@ -455,6 +460,7 @@ int main(int argc, char** argv)
 		//skybox size = 50 X 50 X 50 unit
 		model = glm::scale(model, glm::vec3(2 * renderDist -1, 2 * renderDist-1, 2 * renderDist-1));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
 		glDrawArrays(GL_TRIANGLES, 0, 42);
 
 		//sand
@@ -472,6 +478,7 @@ int main(int argc, char** argv)
 			glBindTexture(GL_TEXTURE_2D, sandTexture);
 			model = glm::mat4(1.0f);
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
 			glDrawArrays(GL_TRIANGLES, 0, landVerticesVar.size());
 		}
 
@@ -490,6 +497,7 @@ int main(int argc, char** argv)
 			glBindTexture(GL_TEXTURE_2D, grassTexture);
 			model = glm::mat4(1.0f);
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
 			glDrawArrays(GL_TRIANGLES, 0, flatVerticesVar.size());
 		}
 
@@ -528,6 +536,7 @@ int main(int argc, char** argv)
 				glFrontFace(GL_CCW);
 			}
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 		glfwSwapBuffers(window);
