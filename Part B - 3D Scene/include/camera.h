@@ -124,7 +124,7 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vecto
 	float u, v, w;
 	for (int index = 0; index < vertices.size(); index++) {
 		//Closest to camera's position
-		glm::vec3 v = in.Position - vertices[index].position;
+		glm::vec3 v = glm::vec3(in.Position.x, 0, in.Position.z) - glm::vec3(vertices[index].position.x, 0, vertices[index].position.z);
 		double l = glm::length(v);
 		sortedVertices[l] = vertices[index].position;
 	}
@@ -144,7 +144,7 @@ void CalculateGroundOffset(SCamera& in, std::vector<Vertex> vertices, std::vecto
 Makes the camera play the Jump animation.
 Run on second thread to allow other inputs to continue.
 */
-void Jump(SCamera &in) {
+void Jump(SCamera &in) { 
 	double lastFrameTime = glfwGetTime();
 	while (in.jHeight < 1) {
 		double cFrameTime = glfwGetTime();

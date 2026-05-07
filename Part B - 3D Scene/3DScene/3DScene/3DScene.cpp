@@ -19,103 +19,103 @@
 using namespace std;
 
 float skyboxVertices[] = {
-	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
+	// positions          // uv			//norm
 
-	//back?
-	-0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f, -0.5f,  6,0,
-	 0.5f,  0.5f, -0.5f,  6,6,
+	//-z
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
+	 0.5f, -0.5f, -0.5f,  6,0,			0,0,-1,
+	 0.5f,  0.5f, -0.5f,  6,6,			0,0,-1,
 
-	 0.5f,  0.5f, -0.5f,  6,6,
-	-0.5f,  0.5f, -0.5f,  0,6,
-	-0.5f, -0.5f, -0.5f,  0,0,
+	 0.5f,  0.5f, -0.5f,  6,6,			0,0,-1,
+	-0.5f,  0.5f, -0.5f,  0,6,			0,0,-1,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
 
-	//Front?
-	-0.5f, -0.5f,  0.5f,  0,0,
-	0.5f,  0.5f,  0.5f,  6,6,
-	 0.5f, -0.5f,  0.5f,  6,0,
+	//+z
+	-0.5f, -0.5f,  0.5f,  0,0,			0,0,1,
+	0.5f,  0.5f,  0.5f,  6,6,			0,0,1,
+	 0.5f, -0.5f,  0.5f,  6,0,			0,0,1,
 
-	 0.5f,  0.5f,  0.5f,  6,6,
-	 -0.5f, -0.5f,  0.5f,  0,0,
-	-0.5f,  0.5f,  0.5f,  0,6,
+	 0.5f,  0.5f,  0.5f,  6,6,			0,0,1,
+	 -0.5f, -0.5f,  0.5f,  0,0,			0,0,1,
+	-0.5f,  0.5f,  0.5f,  0,6,			0,0,1,
 
-	//Left
-	-0.5f,  0.5f,  0.5f,  6,6,
-	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f,  0.5f, -0.5f,  0,6,
+	//-x
+	-0.5f,  0.5f,  0.5f,  6,6,			-1,0,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
+	-0.5f,  0.5f, -0.5f,  0,6,			-1,0,0,
 	
-	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f,  0.5f,  0.5f,  6,6,
-	-0.5f, -0.5f,  0.5f,  6,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
+	-0.5f,  0.5f,  0.5f,  6,6,			-1,0,0,
+	-0.5f, -0.5f,  0.5f,  6,0,			-1,0,0,
 	
 
-	//Right
-	 0.5f,  0.5f,  0.5f,  6,6,
-	 0.5f,  0.5f, -0.5f,  0,6,
-	 0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f,  0.5f,  6,0,
-	 0.5f,  0.5f,  0.5f,  6,6,
+	//+x
+	 0.5f,  0.5f,  0.5f,  6,6,			1,0,0,
+	 0.5f,  0.5f, -0.5f,  0,6,			1,0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	 0.5f, -0.5f,  0.5f,  6,0,			1,0,0,
+	 0.5f,  0.5f,  0.5f,  6,6,			1,0,0,
 
-	 //bottom
-	-0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f, -0.5f,  6,0,
-	 0.5f, -0.5f,  0.5f,  6,6,
-	 0.5f, -0.5f,  0.5f,  6,6,
-	-0.5f, -0.5f,  0.5f,  0,6,
-	-0.5f, -0.5f, -0.5f,  0,0,
+	 //-y
+	-0.5f, -0.5f, -0.5f,  0,0,			0,-1,0,
+	 0.5f, -0.5f, -0.5f,  6,0,			0,-1,0,
+	 0.5f, -0.5f,  0.5f,  6,6,			0,-1,0,
+	 0.5f, -0.5f,  0.5f,  6,6,			0,-1,0,
+	-0.5f, -0.5f,  0.5f,  0,6,			0,-1,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,-1,0,
 
-	//top
-	-0.5f,  0.5f, -0.5f,  0,0,
-	 0.5f,  0.5f, -0.5f,  6,0,
-	 0.5f,  0.5f,  0.5f,  6,6,
-	 0.5f,  0.5f,  0.5f,  6,6,
-	-0.5f,  0.5f,  0.5f,  0,6,
-	-0.5f,  0.5f, -0.5f,  0,0,
+	//+y
+	-0.5f,  0.5f, -0.5f,  0,0,			0,1,0,
+	 0.5f,  0.5f, -0.5f,  6,0,			0,1,0,
+	 0.5f,  0.5f,  0.5f,  6,6,			0,1,0,
+	 0.5f,  0.5f,  0.5f,  6,6,			0,1,0,
+	-0.5f,  0.5f,  0.5f,  0,6,			0,1,0,
+	-0.5f,  0.5f, -0.5f,  0,0,			0,1,0,
 };
 float seaboxVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
-	//Back - sea
-	-0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f, -0.5f,  6,0,
-	 0.5f,  0.f, -0.5f,  6,6,
-	 0.5f,  0.f, -0.5f,  6,6,
-	-0.5f,  0.f, -0.5f,  0,6,
-	-0.5f, -0.5f, -0.5f,  0,0,
+	//-z
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
+	 0.5f, -0.5f, -0.5f,  6,0,			0,0,-1,
+	 0.5f,  0.f, -0.5f,  6,6,			0,0,-1,
+	 0.5f,  0.f, -0.5f,  6,6,			0,0,-1,
+	-0.5f,  0.f, -0.5f,  0,6,			0,0,-1,
+	-0.5f, -0.5f, -0.5f,  0,0,			0,0,-1,
 
-	//Left cut this
-	-0.5f,  0.f,  0.25f,  50,50,
-	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f,  0.f, -0.5f,  0,50,
+	//-x
+	-0.5f,  0.f,  0.25f,  50,50,		-1,0,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
+	-0.5f,  0.f, -0.5f,  0,50,			-1,0,0,
 	
-	-0.5f, -0.5f, -0.5f,  0,0,
-	-0.5f,  0.f,  0.25f,  50,50,
-	-0.5f, -0.5f,  0.25f,  50,0,
+	-0.5f, -0.5f, -0.5f,  0,0,			-1,0,0,
+	-0.5f,  0.f,  0.25f,  50,50,		-1,0,0,
+	-0.5f, -0.5f,  0.25f,  50,0,		-1,0,0,
 	
-	//Right cut this at zero 
-	 0.5f,  0.f,  0.25f,  50,50,
-	 0.5f,  0.f, -0.5f,  0,50,
-	 0.5f, -0.5f, -0.5f,  0,0,
+	//+x 
+	 0.5f,  0.f,  0.25f,  50,50,		1,0,0,
+	 0.5f,  0.f, -0.5f,  0,50,			1,0,0,
+	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
 
-	 0.5f, -0.5f, -0.5f,  0,0,
-	 0.5f, -0.5f,  0.25f,  50,0,
-	 0.5f,  0.f,  0.25f,  50,50,
+	 0.5f, -0.5f, -0.5f,  0,0,			1,0,0,
+	 0.5f, -0.5f,  0.25f,  50,0,		1,0,0,
+	 0.5f,  0.f,  0.25f,  50,50,		1,0,0,
 };
 float seaVertices[] = {
 	// positions          // uv			//SPECIFY ALPHA COORDINATE HERE
 	//tr
-	 5.0f, -0.25f,  5.0f,  10,10,
+	 5.0f, -0.25f,  5.0f,  10,10,		0,.998752,.049938,
 	 //br
-	  5.0f, 0.25f, -5.0f,  10,0,
+	  5.0f, 0.25f, -5.0f,  10,0,		0,.998752,.049938,
 	 //bl
-	 -5.0f, 0.25f, -5.0f,  0,0,
+	 -5.0f, 0.25f, -5.0f,  0,0,			0,.998752,.049938,
 	
 	//tr
-	 5.0f, -0.25f,  5.0f,  10,10,
+	 5.0f, -0.25f,  5.0f,  10,10,		0,.998752,.049938,
 	 //bl
-	-5.0f, 0.25f, -5.0f,  0,0,
+	-5.0f, 0.25f, -5.0f,  0,0,			0,.998752,.049938,
 	//tl
-	-5.0f, -0.25f,  5.0f,  0,10,
+	-5.0f, -0.25f,  5.0f,  0,10,		0,.998752,.049938,
 };
 
 SCamera cam;
@@ -141,7 +141,7 @@ void checkXSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs
 
 				for (auto v : nvs) {
 					v.position.x = v.position.x + i * 100;
-					if (glm::length(camPos - v.position) < 170)//Def part of this terrain slice. Exclude others. 170 specifically to prevent terrain tearing 
+					if (glm::length(camPos - v.position) < 340)//Def part of this terrain slice. Exclude others. 340 specifically to prevent terrain tearing 
 						vs.push_back(v);
 				}
 				for (auto f : nfs) {
@@ -160,7 +160,7 @@ void checkXSpawnTerrain(vector<Vertex>& vs, vector<Face>& fs, vector<Vertex> nvs
 
 				for (auto v : nvs) {
 					v.position.x = v.position.x + i * 100;
-					if (glm::length(camPos - v.position) < 170)//Def part of this terrain slice. Exclude others. 170 specifically to prevent terrain tearing 
+					if (glm::length(camPos - v.position) < 340)//Def part of this terrain slice. Exclude others. 340 specifically to prevent terrain tearing 
 						vs.push_back(v);
 				}
 				for (auto f : nfs) {
@@ -243,6 +243,19 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 	glfwGetCursorPos(window, &xpos, &ypos);
 	glfwGetWindowSize(window, &maxx, &maxy);
 	glfwSetCursorPos(window, (double)maxx / 2, (double)maxy / 2);
+
+	glm::vec3 v1 = glm::vec3(seaVertices[0], seaVertices[1], seaVertices[2]);
+	glm::vec3 v2 = glm::vec3(seaVertices[5], seaVertices[6], seaVertices[7]);
+	glm::vec3 v3 = glm::vec3(seaVertices[10], seaVertices[11], seaVertices[12]);
+	glm::vec3 a = glm::normalize(glm::cross(v2 - v1, v3 - v1));
+	printf("%f,%f,%f\n", a.x,a.y,a.z);
+
+	glm::vec3 v10 = glm::vec3(seaVertices[15], seaVertices[16], seaVertices[17]);
+	glm::vec3 v20 = glm::vec3(seaVertices[20], seaVertices[21], seaVertices[22]);
+	glm::vec3 v30 = glm::vec3(seaVertices[25], seaVertices[26], seaVertices[27]);
+	glm::vec3 a0 = glm::normalize(glm::cross(v20 - v10, v30 - v10));
+	printf("%f,%f,%f\n", a0.x,a0.y,a0.z);
+
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		zoffset = 2.f * frameTimeDif;
@@ -343,40 +356,50 @@ int main(int argc, char** argv)
 	glBindVertexArray(VAO[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	//land
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*landVerticesVar.size(), &landVerticesVar[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	//sea
 	glBindVertexArray(VAO[2]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(seaVertices), seaVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	//seabox
 	glBindVertexArray(VAO[3]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(seaboxVertices), seaboxVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	//flat
 	glBindVertexArray(VAO[4]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * flatVerticesVar.size(), &flatVerticesVar[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
@@ -455,7 +478,7 @@ int main(int argc, char** argv)
 		//grass/flatlands
 		flatVerticesVar.clear();
 		checkZSpawnTerrain(flatVerticesVar, landFacesVar, flatVerticesConst, flatFacesConst, cam.Position);
-		printf("%d\n", flatVerticesVar.size());
+		printf("%f\n", cam.Position.x);
 		if (flatVerticesVar.size() > 0) {
 			glBindVertexArray(VAO[4]);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
