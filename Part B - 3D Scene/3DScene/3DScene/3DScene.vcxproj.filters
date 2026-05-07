@@ -38,7 +38,13 @@
     <ClInclude Include="..\..\include\tiny_obj_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="load_object.h">
+    <ClInclude Include="..\..\include\bitmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\load_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\shadow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
