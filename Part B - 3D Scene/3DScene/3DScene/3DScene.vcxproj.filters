@@ -41,13 +41,19 @@
     <ClInclude Include="..\..\include\bitmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\load_object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\shadow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\casteljau.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ball.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\load_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -63,6 +69,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="shadow.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="col.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="mvp.vert">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

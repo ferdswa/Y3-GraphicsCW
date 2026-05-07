@@ -17,6 +17,7 @@
 #include "terrain.h"
 #include "load_object.h"
 #include "shadow.h"
+#include <casteljau.h>
 #define WIDTH 1024
 #define HEIGHT 768
 #define SH_MAP_WIDTH 2048
@@ -314,7 +315,7 @@ void drawObjects(unsigned int VAO[5], unsigned int VBO[5], GLuint waterTexture, 
 	glBindTexture(GL_TEXTURE_2D, waterTextureOpaque);
 	glBindVertexArray(VAO[3]);
 	model = glm::translate(model, glm::vec3(cam.Position.x, -.5f, cam.Position.z));
-	//skybox size = 100 X 100 X 100 unit
+	
 	model = glm::scale(model, glm::vec3(2 * renderDist - 1, 2 * renderDist - 1, 2 * renderDist - 1));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
@@ -397,7 +398,7 @@ void drawObjects(unsigned int VAO[5], unsigned int VBO[5], GLuint waterTexture, 
 	}
 }
 
-void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[5], unsigned int VBO[5], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[15], unsigned int VBO[15], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
 	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar)
 {
 	glViewport(0, 0, SH_MAP_WIDTH, SH_MAP_HEIGHT);
@@ -409,7 +410,7 @@ void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void renderWithShadow(unsigned int renderShadowProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[5], unsigned int VBO[5], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+void renderWithShadow(unsigned int renderShadowProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[15], unsigned int VBO[15], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
 	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar) {
 
 	glViewport(0, 0, WIDTH, HEIGHT);
@@ -467,6 +468,126 @@ int main(int argc, char** argv)
 
 	GLuint shaderProgram = CompileShader("triangle.vert", "triangle.frag");
 	GLuint shadowProgram = CompileShader("shadow.vert", "shadow.frag");
+	GLuint curveProgram = CompileShader("mvp.vert", "col.frag");
+
+	int num_evals = 128;
+	vector<point> ctrl_pts;
+
+	//Outer edge of "comet"
+	ctrl_pts.clear();
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -1.25f));
+	ctrl_pts.push_back(point(12.f, 40.f, -1.f));
+	ctrl_pts.push_back(point(4.f, 40.f, -0.25f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts2 = 0;
+	int num_curve_floats2 = 0;
+	float* inner1_curve_vertices = NULL;
+	std::vector<point> inner1 = EvaluateBezierCurve(ctrl_pts, num_evals);
+	inner1_curve_vertices = MakeFloatsFromVector(inner1, num_curve_verts2, num_curve_floats2, 1.f, 1.f, 1.f);
+
+	ctrl_pts.clear();
+	//Progressively closer to centre
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -1.125f));
+	ctrl_pts.push_back(point(12.f, 40.f, -0.875f));
+	ctrl_pts.push_back(point(4.f, 40.f, -0.125f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts3 = 0;
+	int num_curve_floats3 = 0;
+	float* inner2_curve_vertices = NULL;
+	std::vector<point> inner2 = EvaluateBezierCurve(ctrl_pts, num_evals);
+	inner2_curve_vertices = MakeFloatsFromVector(inner2, num_curve_verts3, num_curve_floats3, 1.f, 1.f, 1.f);
+
+	ctrl_pts.clear();
+	//Progressively closer to centre
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -1.f));
+	ctrl_pts.push_back(point(12.f, 40.f, -0.75f));
+	ctrl_pts.push_back(point(4.f, 40.f, -0.0625f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts4 = 0;
+	int num_curve_floats4 = 0;
+	float* inner3_curve_vertices = NULL;
+	std::vector<point> inner3 = EvaluateBezierCurve(ctrl_pts, num_evals);
+	inner3_curve_vertices = MakeFloatsFromVector(inner3, num_curve_verts4, num_curve_floats4, 1.f, 1.f, 1.f);
+
+	ctrl_pts.clear();
+	//Progressively closer to centre
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -0.875f));
+	ctrl_pts.push_back(point(12.f, 40.f, -0.625f));
+	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts5 = 0;
+	int num_curve_floats5 = 0;
+	float* inner4_curve_vertices = NULL;
+	std::vector<point> inner4 = EvaluateBezierCurve(ctrl_pts, num_evals);
+	inner4_curve_vertices = MakeFloatsFromVector(inner4, num_curve_verts5, num_curve_floats5, 1.f, 1.f, 1.f);
+
+	ctrl_pts.clear();
+	//Progressively closer to centre
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -0.75f));
+	ctrl_pts.push_back(point(12.f, 40.f, -0.5f));
+	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts6 = 0;
+	int num_curve_floats6 = 0;
+	float* inner5_curve_vertices = NULL;
+	std::vector<point> inner5 = EvaluateBezierCurve(ctrl_pts, num_evals);
+	inner5_curve_vertices = MakeFloatsFromVector(inner5, num_curve_verts6, num_curve_floats6, 1.f, 1.f, 1.f);
+
+	ctrl_pts.clear();
+	//Progressively closer to centre
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -0.625f));
+	ctrl_pts.push_back(point(12.f, 40.f, -0.375f));
+	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts7 = 0;
+	int num_curve_floats7 = 0;
+	float* inner6_curve_vertices = NULL;
+	std::vector<point> inner6 = EvaluateBezierCurve(ctrl_pts, num_evals);
+	inner6_curve_vertices = MakeFloatsFromVector(inner6, num_curve_verts7, num_curve_floats7, 1.f, 1.f, 1.f);
+
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -0.4f));
+	ctrl_pts.push_back(point(12.f, 40.f, -0.25f));
+	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts = 0;
+	int num_curve_floats = 0;
+	float* outer_curve_vertices = NULL;
+
+	std::vector<point> outer = EvaluateBezierCurve(ctrl_pts, num_evals);
+	outer_curve_vertices = MakeFloatsFromVector(outer, num_curve_verts, num_curve_floats, 1.f, 1.f, 1.f);
+
+	ctrl_pts.clear();
+	//Progressively closer to centre
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, -0.2f));
+	ctrl_pts.push_back(point(12.f, 40.f, -0.125f));
+	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts1 = 0;
+	int num_curve_floats1 = 0;
+	float* inner_curve_vertices = NULL;
+	std::vector<point> inner = EvaluateBezierCurve(ctrl_pts, num_evals);
+	inner_curve_vertices = MakeFloatsFromVector(inner, num_curve_verts1, num_curve_floats1, 1.f, 1.f, 1.f);
+
+	ctrl_pts.clear();
+	//Progressively closer to centre
+	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(16.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(12.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
+	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+	int num_curve_verts_sl = 0;
+	int num_curve_floats_sl = 0;
+	float* sl_curve_vertices = NULL;
+	std::vector<point> sl = EvaluateBezierCurve(ctrl_pts, num_evals);
+	sl_curve_vertices = MakeFloatsFromVector(sl, num_curve_verts_sl, num_curve_floats_sl, 1.f, 1.f, 1.f);
 
 	InitCamera(cam);
 	
@@ -482,8 +603,12 @@ int main(int argc, char** argv)
 	std::vector<Vertex> flatVerticesVar;
 	std::vector<Face> flatFacesVar;
 
+	std::vector<Vertex> ballVertices;
+	std::vector<Face> ballFaces;
+
 	obj_parse(gentleSlopeVerticesConst, gentleSlopeFacesConst, "objs/bumpy_plane.obj");
 	obj_parse(flatVerticesConst, flatFacesConst, "objs/flat_bumpy_plane.obj");
+	obj_parse(ballVertices, ballFaces, "objs/ball.obj");
 
 	landVerticesVar = gentleSlopeVerticesConst;
 	landFacesVar = gentleSlopeFacesConst;
@@ -495,11 +620,12 @@ int main(int argc, char** argv)
 	GLuint grassTexture = setup_texture("textures/grass.bmp");
 	GLuint waterTexture = setup_texture("textures/water.png");
 	GLuint waterTextureOpaque = setup_texture("textures/water_opaque.png");
+	GLuint ballTexture = setup_texture("textures/ball.png");
 
-	unsigned int VAO[5];
-	glGenVertexArrays(5, VAO);
-	unsigned int VBO[5];
-	glGenBuffers(5, VBO);
+	unsigned int VAO[15];
+	glGenVertexArrays(15, VAO);
+	unsigned int VBO[15];
+	glGenBuffers(15, VBO);
 
 	//INCLUDE ALPHA COORDINATE IN THE VAO HERE
 	//skybox
@@ -552,6 +678,78 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	//Bezier comet
+	glBindVertexArray(VAO[5]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[5]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * num_curve_floats, &outer_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[6]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[6]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats1, &inner_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[7]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[7]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats2, &inner1_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[8]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[8]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats3, &inner2_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[9]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[9]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats4, &inner3_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[10]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[10]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats5, &inner4_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[11]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[11]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats6, &inner5_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[12]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[12]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats7, &inner6_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(VAO[13]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[13]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats_sl, &sl_curve_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	//Ball
+	glBindVertexArray(VAO[14]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[14]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)* ballVertices.size(), &ballVertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 
@@ -583,6 +781,62 @@ int main(int argc, char** argv)
 
 		renderWithShadow(shaderProgram, shadow, lPVMat, VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar);
 
+		glUseProgram(curveProgram);
+		model = glm::mat4(1.f);
+		model = glm::translate(model, cam.Position);
+		glUniformMatrix4fv(glGetUniformLocation(curveProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+
+		glm::mat4 view = glm::mat4(1.f);
+		view = glm::lookAt(cam.Position, cam.Position + cam.Front, cam.Up);
+		glUniformMatrix4fv(glGetUniformLocation(curveProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+		glm::mat4 projection = glm::mat4(1.f);
+		projection = glm::perspective(glm::radians(FoV), (float)WIDTH / (float)HEIGHT, .1f, 100.f);
+		glUniformMatrix4fv(glGetUniformLocation(curveProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		glBindVertexArray(VAO[5]);
+		glDrawArrays(GL_LINE_STRIP,0,num_curve_verts);
+		glBindVertexArray(VAO[5]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts);
+		glBindVertexArray(VAO[6]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts1);
+		glBindVertexArray(VAO[7]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts2);
+		glBindVertexArray(VAO[8]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts3);
+		glBindVertexArray(VAO[9]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts4);
+		glBindVertexArray(VAO[10]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts5);
+		glBindVertexArray(VAO[11]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts6);
+		glBindVertexArray(VAO[12]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts7);
+		glBindVertexArray(VAO[13]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts_sl);
+		model = glm::scale(model, glm::vec3(1, 1, -1));
+		glUniformMatrix4fv(glGetUniformLocation(curveProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glBindVertexArray(VAO[5]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts);
+		glBindVertexArray(VAO[5]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts);
+		glBindVertexArray(VAO[6]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts1);
+		glBindVertexArray(VAO[7]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts2);
+		glBindVertexArray(VAO[8]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts3);
+		glBindVertexArray(VAO[9]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts4);
+		glBindVertexArray(VAO[10]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts5);
+		glBindVertexArray(VAO[11]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts6);
+		glBindVertexArray(VAO[12]);
+		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts7);
+		glBindVertexArray(VAO[13]);
+
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
@@ -590,8 +844,10 @@ int main(int argc, char** argv)
 		processKeyboard(window, landVerticesVar, landFacesVar);
 	}
 
-	glDeleteVertexArrays(5, VAO);
-	glDeleteBuffers(5, VBO);
+	glDeleteVertexArrays(15, VAO);
+	glDeleteBuffers(15, VBO);
+
+	free(outer_curve_vertices);
 
 	glfwTerminate();
 

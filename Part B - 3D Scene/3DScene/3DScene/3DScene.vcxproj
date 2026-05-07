@@ -132,8 +132,10 @@
     <ClCompile Include="3DScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\ball.h" />
     <ClInclude Include="..\..\include\bitmap.h" />
     <ClInclude Include="..\..\include\camera.h" />
+    <ClInclude Include="..\..\include\casteljau.h" />
     <ClInclude Include="..\..\include\file.h" />
     <ClInclude Include="..\..\include\load_object.h" />
     <ClInclude Include="..\..\include\point.h" />
@@ -143,6 +145,8 @@
     <ClInclude Include="..\..\include\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="col.frag" />
+    <None Include="mvp.vert" />
     <None Include="packages.config" />
     <None Include="shadow.frag" />
     <None Include="shadow.vert" />

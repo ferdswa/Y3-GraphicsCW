@@ -1,3 +1,4 @@
+#pragma once
 #ifndef  POINT
 
 #define POINT
