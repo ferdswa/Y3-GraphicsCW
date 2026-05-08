@@ -543,108 +543,23 @@ int main(int argc, char** argv)
 	int num_evals = 128;
 	vector<point> ctrl_pts;
 
-	//Outer edge of "comet"
-	ctrl_pts.clear();
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -1.25f));
-	ctrl_pts.push_back(point(12.f, 40.f, -1.f));
-	ctrl_pts.push_back(point(4.f, 40.f, -0.25f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts2 = 0;
-	int num_curve_floats2 = 0;
-	float* inner1_curve_vertices = NULL;
-	std::vector<point> inner1 = EvaluateBezierCurve(ctrl_pts, num_evals);
-	inner1_curve_vertices = MakeFloatsFromVector(inner1, num_curve_verts2, num_curve_floats2, 1.f, 1.f, 1.f);
-
-	ctrl_pts.clear();
-	//Progressively closer to centre
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -1.125f));
-	ctrl_pts.push_back(point(12.f, 40.f, -0.875f));
-	ctrl_pts.push_back(point(4.f, 40.f, -0.125f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts3 = 0;
-	int num_curve_floats3 = 0;
-	float* inner2_curve_vertices = NULL;
-	std::vector<point> inner2 = EvaluateBezierCurve(ctrl_pts, num_evals);
-	inner2_curve_vertices = MakeFloatsFromVector(inner2, num_curve_verts3, num_curve_floats3, 1.f, 1.f, 1.f);
-
-	ctrl_pts.clear();
-	//Progressively closer to centre
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -1.f));
-	ctrl_pts.push_back(point(12.f, 40.f, -0.75f));
-	ctrl_pts.push_back(point(4.f, 40.f, -0.0625f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts4 = 0;
-	int num_curve_floats4 = 0;
-	float* inner3_curve_vertices = NULL;
-	std::vector<point> inner3 = EvaluateBezierCurve(ctrl_pts, num_evals);
-	inner3_curve_vertices = MakeFloatsFromVector(inner3, num_curve_verts4, num_curve_floats4, 1.f, 1.f, 1.f);
-
-	ctrl_pts.clear();
-	//Progressively closer to centre
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -0.875f));
-	ctrl_pts.push_back(point(12.f, 40.f, -0.625f));
-	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts5 = 0;
-	int num_curve_floats5 = 0;
-	float* inner4_curve_vertices = NULL;
-	std::vector<point> inner4 = EvaluateBezierCurve(ctrl_pts, num_evals);
-	inner4_curve_vertices = MakeFloatsFromVector(inner4, num_curve_verts5, num_curve_floats5, 1.f, 1.f, 1.f);
-
-	ctrl_pts.clear();
-	//Progressively closer to centre
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -0.75f));
-	ctrl_pts.push_back(point(12.f, 40.f, -0.5f));
-	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts6 = 0;
-	int num_curve_floats6 = 0;
-	float* inner5_curve_vertices = NULL;
-	std::vector<point> inner5 = EvaluateBezierCurve(ctrl_pts, num_evals);
-	inner5_curve_vertices = MakeFloatsFromVector(inner5, num_curve_verts6, num_curve_floats6, 1.f, 1.f, 1.f);
-
-	ctrl_pts.clear();
-	//Progressively closer to centre
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -0.625f));
-	ctrl_pts.push_back(point(12.f, 40.f, -0.375f));
-	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts7 = 0;
-	int num_curve_floats7 = 0;
-	float* inner6_curve_vertices = NULL;
-	std::vector<point> inner6 = EvaluateBezierCurve(ctrl_pts, num_evals);
-	inner6_curve_vertices = MakeFloatsFromVector(inner6, num_curve_verts7, num_curve_floats7, 1.f, 1.f, 1.f);
-
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -0.4f));
-	ctrl_pts.push_back(point(12.f, 40.f, -0.25f));
-	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts = 0;
-	int num_curve_floats = 0;
-	float* outer_curve_vertices = NULL;
-
-	std::vector<point> outer = EvaluateBezierCurve(ctrl_pts, num_evals);
-	outer_curve_vertices = MakeFloatsFromVector(outer, num_curve_verts, num_curve_floats, 1.f, 1.f, 1.f);
-
-	ctrl_pts.clear();
-	//Progressively closer to centre
-	ctrl_pts.push_back(point(20.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(16.f, 40.f, -0.2f));
-	ctrl_pts.push_back(point(12.f, 40.f, -0.125f));
-	ctrl_pts.push_back(point(4.f, 40.f, 0.f));
-	ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
-	int num_curve_verts1 = 0;
-	int num_curve_floats1 = 0;
-	float* inner_curve_vertices = NULL;
-	std::vector<point> inner = EvaluateBezierCurve(ctrl_pts, num_evals);
-	inner_curve_vertices = MakeFloatsFromVector(inner, num_curve_verts1, num_curve_floats1, 1.f, 1.f, 1.f);
+	int num_curve_verts[8];
+	int num_curve_floats[8];
+	float* curve_vertices[8];
+	vector<point> bezierVectors[8];
+	for (int i = 0; i < 8; i++) {
+		ctrl_pts.clear();
+		ctrl_pts.push_back(point(20.f, 40.f, 0.f));
+		ctrl_pts.push_back(point(16.f, 40.f, glm::min((double)0, -1.25 + i * 0.125)));
+		ctrl_pts.push_back(point(12.f, 40.f, glm::min((double)0, -1 + i * 0.125)));
+		ctrl_pts.push_back(point(4.f, 40.f, glm::min((double)0, -0.25 + i * 0.0625)));
+		ctrl_pts.push_back(point(-10.f, 40.f, 0.f));
+		num_curve_verts[i] = 0;
+		num_curve_floats[i] = 0;
+		curve_vertices[i] = NULL;
+		bezierVectors[i] = EvaluateBezierCurve(ctrl_pts, num_evals);
+		curve_vertices[i] = MakeFloatsFromVector(bezierVectors[i], num_curve_verts[i], num_curve_floats[i], 1.f, 1.f, 1.f);
+	}
 
 	ctrl_pts.clear();
 	//Progressively closer to centre
@@ -759,62 +674,15 @@ int main(int argc, char** argv)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	//Bezier comet
-	glBindVertexArray(VAO[5]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[5]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * num_curve_floats, &outer_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(VAO[6]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[6]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats1, &inner_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(VAO[7]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[7]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats2, &inner1_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(VAO[8]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[8]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats3, &inner2_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(VAO[9]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[9]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats4, &inner3_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(VAO[10]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[10]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats5, &inner4_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(VAO[11]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[11]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats6, &inner5_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(VAO[12]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[12]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats7, &inner6_curve_vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	for (int i = 5; i <= 12; i++) {
+		glBindVertexArray(VAO[i]);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * num_curve_floats[i-5], &curve_vertices[i-5][0], GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+	}
 	glBindVertexArray(VAO[13]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[13]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* num_curve_floats_sl, &sl_curve_vertices[0], GL_STATIC_DRAW);
@@ -832,7 +700,7 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
+	//Moon
 	glBindVertexArray(VAO[15]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[15]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(moonVertices), moonVertices, GL_STATIC_DRAW);
@@ -842,7 +710,7 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-
+	//Tree
 	glBindVertexArray(VAO[16]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[16]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)* tV, &treeVertices[0], GL_STATIC_DRAW);
@@ -897,47 +765,18 @@ int main(int argc, char** argv)
 		projection = glm::perspective(glm::radians(FoV), (float)WIDTH / (float)HEIGHT, .1f, 100.f);
 		glUniformMatrix4fv(glGetUniformLocation(curveProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		glBindVertexArray(VAO[5]);
-		glDrawArrays(GL_LINE_STRIP,0,num_curve_verts);
-		glBindVertexArray(VAO[5]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts);
-		glBindVertexArray(VAO[6]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts1);
-		glBindVertexArray(VAO[7]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts2);
-		glBindVertexArray(VAO[8]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts3);
-		glBindVertexArray(VAO[9]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts4);
-		glBindVertexArray(VAO[10]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts5);
-		glBindVertexArray(VAO[11]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts6);
-		glBindVertexArray(VAO[12]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts7);
+		for (int i = 5; i <= 12; i++) {
+			glBindVertexArray(VAO[i]);
+			glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts[i-5]);
+		}
 		glBindVertexArray(VAO[13]);
 		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts_sl);
 		model = glm::scale(model, glm::vec3(1, 1, -1));
 		glUniformMatrix4fv(glGetUniformLocation(curveProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glBindVertexArray(VAO[5]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts);
-		glBindVertexArray(VAO[5]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts);
-		glBindVertexArray(VAO[6]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts1);
-		glBindVertexArray(VAO[7]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts2);
-		glBindVertexArray(VAO[8]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts3);
-		glBindVertexArray(VAO[9]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts4);
-		glBindVertexArray(VAO[10]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts5);
-		glBindVertexArray(VAO[11]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts6);
-		glBindVertexArray(VAO[12]);
-		glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts7);
-		glBindVertexArray(VAO[13]);
+		for (int i = 5; i <= 12; i++) {
+			glBindVertexArray(VAO[i]);
+			glDrawArrays(GL_LINE_STRIP, 0, num_curve_verts[i - 5]);
+		}
 
 		glfwSwapBuffers(window);
 
@@ -949,11 +788,7 @@ int main(int argc, char** argv)
 	glDeleteVertexArrays(17, VAO);
 	glDeleteBuffers(17, VBO);
 
-	free(outer_curve_vertices);
-
 	glfwTerminate();
 
 	return 0;
 }
-
-

@@ -94,7 +94,6 @@ double yCalc(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, float x, float z) {
 	return l1 * v1.y + l2 * v2.y + l3 * v3.y;
 }
 
-//https://uysalaltas.github.io/2022/03/24/OpenGL_Collision_Detection.html
 bool checkIntersect(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
 {
 	glm::vec3 a0 = a - p;
@@ -104,6 +103,8 @@ bool checkIntersect(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
 	glm::vec3 normPBC = glm::cross(b0, c0);
 	glm::vec3 normPCA = glm::cross(c0, a0);
 	glm::vec3 normPAB = glm::cross(a0, b0);
+
+	//Ensure normal selected point at least partly +Y
 	if (normPBC.y > 0.0f && normPCA.y > 0.0f && normPAB.y > 0.0f) {
 		if (glm::dot(normPBC, normPCA) < 0.0f) {
 			return false;
