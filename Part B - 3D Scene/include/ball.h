@@ -4,9 +4,25 @@
 #include <thread>
 #include <vector>
 #include <algorithm>
+#include <load_object.h>
+
 struct SBall {
-	glm::vec3 Position;
-	glm::vec3 Front;
-	glm::vec3 Up;
-	glm::vec3 Right;
+	std::vector<Vertex> myVs;
+	glm::vec3 myPos;
 };
+//As this is a sphere, pos can be calculated by taking the average of all vertices
+void calcPos(SBall& ball) {
+	glm::vec3 sum(0, 0, 0);
+	glm::vec3 avg(0, 0, 0);
+
+	for (Vertex v : ball.myVs) {
+		sum = sum + v.position;
+	}
+	avg = sum / (float)ball.myVs.size();
+	ball.myPos = avg;
+}
+void SetupBall(SBall& ball, std::vector<Vertex> vs) {
+	ball.myVs = vs;
+	calcPos(ball);
+}
+
