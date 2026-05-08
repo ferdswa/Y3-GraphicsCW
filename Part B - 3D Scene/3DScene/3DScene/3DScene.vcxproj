@@ -142,6 +142,7 @@
     <ClInclude Include="..\..\include\shader.h" />
     <ClInclude Include="..\..\include\shadow.h" />
     <ClInclude Include="..\..\include\terrain.h" />
+    <ClInclude Include="..\..\include\texture.h" />
     <ClInclude Include="..\..\include\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>

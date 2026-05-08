@@ -413,6 +413,7 @@ void drawObjects(unsigned int VAO[17], unsigned int VBO[17], GLuint waterTexture
 		if (landVerticesVar[i].position.z > 10 && i % 24 == 0) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, landVerticesVar[i].position);
+			model = glm::rotate(model, glm::radians((float)(i % 6 * 6)), glm::vec3(0.0f, 1.0f, .0f));
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
 			glDrawArrays(GL_TRIANGLES, 0, tV);
@@ -519,7 +520,6 @@ int main(int argc, char** argv)
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "3D Scene - Maxim Carr - psymc9", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
 	gl3wInit();
 
 	glEnable(GL_DEBUG_OUTPUT);
