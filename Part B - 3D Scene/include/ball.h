@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <thread>
 #include <vector>
-#include <algorithm>
 #include <load_object.h>
 
 struct SBall {
@@ -81,8 +80,6 @@ void Drop(SBall& ball, std::vector<Vertex> landVertices, std::vector<Face> landF
 		calcVs(ball);
 		lastFrameTime = glfwGetTime();
 	}
-	printf("finish", ball.myPos.y);
-	
 }
 
 void Kick(SBall& ball, glm::vec3 forceVec, std::vector<Vertex> landVertices, std::vector<Face> landFaces) {
@@ -140,7 +137,6 @@ void CheckBall(SBall& ball, SCamera cam, std::vector<Vertex> landVertices, std::
 	//cam.Position.y = cam.Position.y - cam.Height;
 	glm::vec3 relV = ball.myPos - glm::vec3(cam.Position.x, cam.Position.y-cam.Height, cam.Position.z);
 	double length = glm::length(relV);
-	printf("%f\n", length);
 	if (length <= 0.5) {//Kick ball
 		thread kick(Kick, ref(ball), relV, landVertices, landFaces);
 		kick.detach();
