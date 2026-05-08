@@ -154,6 +154,7 @@ glm::vec3 flashLightDir;
 float FoV = 45.f;
 double oldX, oldY;
 int renderDist = 50;
+int tV = 0;
 
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 {
@@ -315,8 +316,8 @@ void processKeyboard(GLFWwindow* window, vector<Vertex> landVertices, vector<Fac
 	lastFrameTime = cFrameTime;
 }
 
-void drawObjects(unsigned int VAO[16], unsigned int VBO[16], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, GLuint shaderProgram, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
-	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar, GLuint ballTexture, GLuint moonTexture) {
+void drawObjects(unsigned int VAO[17], unsigned int VBO[17], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, GLuint shaderProgram, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar, GLuint ballTexture, GLuint moonTexture, GLuint treeTexture) {
 	glUseProgram(shaderProgram);
 	glm::mat4 model = glm::mat4(1.f); 
 	//skybox
@@ -405,6 +406,28 @@ void drawObjects(unsigned int VAO[16], unsigned int VBO[16], GLuint waterTexture
 		glDrawArrays(GL_TRIANGLES, 0, flatVerticesVar.size());
 	}
 
+	//tree
+	glBindVertexArray(VAO[16]);
+	glBindTexture(GL_TEXTURE_2D, treeTexture);
+	for (int i = 0; i < landVerticesVar.size(); i++) {
+		if (landVerticesVar[i].position.z > 10 && i % 24 == 0) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, landVerticesVar[i].position);
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
+			glDrawArrays(GL_TRIANGLES, 0, tV);
+		}
+	}
+	for (int i = 0; i < flatVerticesVar.size(); i++) {
+		if (i % 12 == 0) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, flatVerticesVar[i].position);
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
+			glDrawArrays(GL_TRIANGLES, 0, tV);
+		}
+	}
+
 	//sea
 	glBindTexture(GL_TEXTURE_2D, waterTexture);
 	glBindVertexArray(VAO[2]);
@@ -445,20 +468,20 @@ void drawObjects(unsigned int VAO[16], unsigned int VBO[16], GLuint waterTexture
 	}
 }
 
-void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[16], unsigned int VBO[16], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
-	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar, GLuint ballTexture, GLuint moonTexture)
+void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[17], unsigned int VBO[17], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar, GLuint ballTexture, GLuint moonTexture, GLuint treeTexture)
 {
 	glViewport(0, 0, SH_MAP_WIDTH, SH_MAP_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadow.FBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shadowShaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shadowShaderProgram, "projectedLightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(projectedLightSpaceMatrix));
-	drawObjects(VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, shadowShaderProgram, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture);
+	drawObjects(VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, shadowShaderProgram, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture, treeTexture);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void renderWithShadow(unsigned int renderShadowProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[16], unsigned int VBO[16], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
-	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar, GLuint ballTexture, GLuint moonTexture) {
+void renderWithShadow(unsigned int renderShadowProgram, ShadowStruct shadow, glm::mat4 projectedLightSpaceMatrix, unsigned int VAO[17], unsigned int VBO[17], GLuint waterTexture, GLuint waterTextureOpaque, GLuint grassTexture, GLuint sandTexture, GLuint nightSkyTexture, vector<Vertex>& landVerticesVar, vector<Face>& landFacesVar,
+	vector<Vertex> gentleSlopeVerticesConst, vector<Face> gentleSlopeFacesConst, vector<Vertex> flatVerticesConst, vector<Face> flatFacesConst, vector<Vertex>& flatVerticesVar, GLuint ballTexture, GLuint moonTexture, GLuint treeTexture) {
 
 	glViewport(0, 0, WIDTH, HEIGHT);
 
@@ -486,7 +509,7 @@ void renderWithShadow(unsigned int renderShadowProgram, ShadowStruct shadow, glm
 	projection = glm::perspective(glm::radians(FoV), (float)WIDTH / (float)HEIGHT, .1f, 100.f);
 	glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-	drawObjects(VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, renderShadowProgram, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture);
+	drawObjects(VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, renderShadowProgram, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture, treeTexture);
 }
 
 int main(int argc, char** argv)
@@ -653,9 +676,15 @@ int main(int argc, char** argv)
 	std::vector<Vertex> ballVertices;
 	std::vector<Face> ballFaces;
 
+	std::vector<Vertex> treeVertices;
+	std::vector<Face> treeFaces;
+
 	obj_parse(gentleSlopeVerticesConst, gentleSlopeFacesConst, "objs/bumpy_plane.obj");
 	obj_parse(flatVerticesConst, flatFacesConst, "objs/flat_bumpy_plane.obj");
 	obj_parse(ballVertices, ballFaces, "objs/ball.obj");
+	obj_parse(treeVertices, treeFaces, "objs/tree.obj");
+
+	tV = treeVertices.size();
 
 	landVerticesVar = gentleSlopeVerticesConst;
 	landFacesVar = gentleSlopeFacesConst;
@@ -669,13 +698,14 @@ int main(int argc, char** argv)
 	GLuint waterTextureOpaque = setup_texture("textures/water_opaque.png");
 	GLuint ballTexture = setup_texture("textures/ball_texture.png");
 	GLuint moonTexture = setup_texture("textures/moon.png");
+	GLuint treeTexture = setup_texture("textures/tree.png");
 
 	SetupBall(ball, ballVertices, landVerticesVar, landFacesVar);
 
-	unsigned int VAO[16];
-	glGenVertexArrays(16, VAO);
-	unsigned int VBO[16];
-	glGenBuffers(16, VBO);
+	unsigned int VAO[17];
+	glGenVertexArrays(17, VAO);
+	unsigned int VBO[17];
+	glGenBuffers(17, VBO);
 
 	//INCLUDE ALPHA COORDINATE IN THE VAO HERE
 	//skybox
@@ -813,6 +843,16 @@ int main(int argc, char** argv)
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
+	glBindVertexArray(VAO[16]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[16]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)* tV, &treeVertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 	glBindVertexArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -838,10 +878,10 @@ int main(int argc, char** argv)
 		glm::mat4 lView = glm::lookAt(moonPos, cam.Position, glm::vec3(0, 1, 0));
 		glm::mat4 lPVMat = lProj * lView * model;
 
-		generateDepthMap(shadowProgram, shadow, lPVMat, VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture);
+		generateDepthMap(shadowProgram, shadow, lPVMat, VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture, treeTexture);
 
 
-		renderWithShadow(shaderProgram, shadow, lPVMat, VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture);
+		renderWithShadow(shaderProgram, shadow, lPVMat, VAO, VBO, waterTexture, waterTextureOpaque, grassTexture, sandTexture, nightSkyTexture, landVerticesVar, landFacesVar, gentleSlopeVerticesConst, gentleSlopeFacesConst, flatVerticesConst, flatFacesConst, flatVerticesVar, ballTexture, moonTexture, treeTexture);
 
 		glUseProgram(curveProgram);
 		model = glm::mat4(1.f);
@@ -906,8 +946,8 @@ int main(int argc, char** argv)
 		processKeyboard(window, landVerticesVar, landFacesVar);
 	}
 
-	glDeleteVertexArrays(16, VAO);
-	glDeleteBuffers(16, VBO);
+	glDeleteVertexArrays(17, VAO);
+	glDeleteBuffers(17, VBO);
 
 	free(outer_curve_vertices);
 

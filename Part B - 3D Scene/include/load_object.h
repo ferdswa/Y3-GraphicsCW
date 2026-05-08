@@ -146,6 +146,28 @@ void obj_parse(std::vector<Vertex>& vertexArray, std::vector<Face>& faceArray, c
 					attribs.texcoords[index.texcoord_index * 2 + 1],
 				};
 			}
+			else if (strcmp(filename, "objs/tree.obj") == 0) {
+				vert.position =
+				{
+					attribs.vertices[3 * index.vertex_index],
+					attribs.vertices[3 * index.vertex_index + 1],
+					attribs.vertices[3 * index.vertex_index + 2],
+				};
+
+				vert.normal =
+				{
+					attribs.normals[3 * index.normal_index],
+					attribs.normals[3 * index.normal_index + 1],
+					attribs.normals[3 * index.normal_index + 2]
+				};
+
+				vert.texCoord = {
+					attribs.texcoords[index.texcoord_index * 2],
+					attribs.texcoords[index.texcoord_index * 2 + 1],
+				};
+			}
+
+
 			//vert.transparency = glm::vec1(1.f);
 
 			vertexArray.push_back(vert);
