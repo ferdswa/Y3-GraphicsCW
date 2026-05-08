@@ -67,7 +67,7 @@ double CalculateGroundOffsetBall(SBall& in, std::vector<Vertex> vertices, std::v
 	return 0;
 }
 void Drop(SBall& ball, std::vector<Vertex> landVertices, std::vector<Face> landFaces) {
-	double initSpeedY = 0;
+	double initSpeedY = -0.1;
 	double groundOffset;
 	ball.myPos.y = ball.myPos.y + initSpeedY;
 	groundOffset = CalculateGroundOffsetBall(ball, landVertices, landFaces);
@@ -77,7 +77,6 @@ void Drop(SBall& ball, std::vector<Vertex> landVertices, std::vector<Face> landF
 		double frameTimeDif = double(cFrameTime - lastFrameTime);
 		initSpeedY -= 2 * frameTimeDif;
 		ball.myPos.y = ball.myPos.y + initSpeedY;
-		printf("drop: %f, %f, %f, %f\n", ball.myPos.x, ball.myPos.y, ball.myPos.z, initSpeedY);
 		groundOffset = CalculateGroundOffsetBall(ball, landVertices, landFaces);
 		calcVs(ball);
 		lastFrameTime = glfwGetTime();
@@ -89,10 +88,8 @@ void Drop(SBall& ball, std::vector<Vertex> landVertices, std::vector<Face> landF
 void Kick(SBall& ball, glm::vec3 forceVec, std::vector<Vertex> landVertices, std::vector<Face> landFaces) {
 	forceVec = glm::normalize(forceVec);
 	double initSpeedX = forceVec.x;
-	printf("forceX: %f\n", initSpeedX);
 	double initSpeedY = 1;
 	double initSpeedZ = forceVec.z;
-	printf("forceZ: %f\n", initSpeedZ);
 	double groundOffset = 0;
 	ball.myPos.x = ball.myPos.x + initSpeedX;
 	ball.myPos.y = ball.myPos.y + initSpeedY;
@@ -105,10 +102,10 @@ void Kick(SBall& ball, glm::vec3 forceVec, std::vector<Vertex> landVertices, std
 		
 		if (abs(initSpeedX) > 0.025) {
 			if (initSpeedX > 0) {
-				initSpeedX -= 100000 * frameTimeDif;
+				initSpeedX -= 0.000025;
 			}
 			else {
-				initSpeedX += 100000 * frameTimeDif;
+				initSpeedX += 0.000025;
 			}
 		}
 		else {
@@ -116,27 +113,26 @@ void Kick(SBall& ball, glm::vec3 forceVec, std::vector<Vertex> landVertices, std
 		}
 		if(abs(initSpeedZ) > 0.025) {
 			if (initSpeedZ > 0) {
-				initSpeedZ -= 100000 * frameTimeDif;
+				initSpeedZ -= 0.000025;
 			}
 			else {
-				initSpeedZ += 100000 * frameTimeDif;
+				initSpeedZ += 0.000025;
 			}
 		}
 		else {
 			initSpeedZ = 0;
 		}
-		initSpeedY -= 100000 * frameTimeDif;
+		initSpeedY -= 0.025;
 		ball.myPos.x = ball.myPos.x + initSpeedX * frameTimeDif;
-		ball.myPos.y = ball.myPos.y + initSpeedY * frameTimeDif;
+		ball.myPos.y = ball.myPos.y + initSpeedY * frameTimeDif ;
 		ball.myPos.z = ball.myPos.z + initSpeedZ * frameTimeDif;
 		groundOffset = CalculateGroundOffsetBall(ball, landVertices, landFaces);
 		calcVs(ball);
-		printf("kick: %f, %f, %f, %f\n", ball.myPos.x, ball.myPos.y, ball.myPos.z, initSpeedY);
 		lastFrameTime = glfwGetTime();
 	}
 	calcVs(ball);
 
-	ball.myPos.y += CalculateGroundOffsetBall(ball, landVertices, landFaces) + 0.25;
+	ball.myPos.y += CalculateGroundOffsetBall(ball, landVertices, landFaces);
 	thread drop(Drop, ref(ball), landVertices, landFaces);
 	drop.detach();
 }
@@ -146,7 +142,6 @@ void CheckBall(SBall& ball, SCamera cam, std::vector<Vertex> landVertices, std::
 	double length = glm::length(relV);
 	printf("%f\n", length);
 	if (length <= 0.5) {//Kick ball
-		
 		thread kick(Kick, ref(ball), relV, landVertices, landFaces);
 		kick.detach();
 	}
