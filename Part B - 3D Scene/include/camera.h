@@ -104,15 +104,16 @@ bool checkIntersect(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
 	glm::vec3 normPBC = glm::cross(b0, c0);
 	glm::vec3 normPCA = glm::cross(c0, a0);
 	glm::vec3 normPAB = glm::cross(a0, b0);
-
-	if (glm::dot(normPBC, normPCA) < 0.0f) {
-		return false;
+	if (normPBC.y > 0.0f && normPCA.y > 0.0f && normPAB.y > 0.0f) {
+		if (glm::dot(normPBC, normPCA) < 0.0f) {
+			return false;
+		}
+		else if (glm::dot(normPBC, normPAB) < 0.0f) {
+			return false;
+		}
+		return true;
 	}
-	else if (glm::dot(normPBC, normPAB) < 0.0f) {
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 

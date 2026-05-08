@@ -129,8 +129,8 @@ void obj_parse(std::vector<Vertex>& vertexArray, std::vector<Face>& faceArray, c
 			else if (strcmp(filename, "objs/ball.obj") == 0) {
 				vert.position =
 				{
-					attribs.vertices[3 * index.vertex_index]+2,
-					attribs.vertices[3 * index.vertex_index + 1] + 3.5,
+					attribs.vertices[3 * index.vertex_index],
+					attribs.vertices[3 * index.vertex_index + 1]+0.25,
 					attribs.vertices[3 * index.vertex_index + 2],
 				};
 

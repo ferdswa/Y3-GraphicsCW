@@ -333,7 +333,16 @@ void drawObjects(unsigned int VAO[16], unsigned int VBO[16], GLuint waterTexture
 	//Ball
 	model = glm::mat4(1.f);
 	glBindTexture(GL_TEXTURE_2D, ballTexture);
+	CheckBall(ball, cam, landVerticesVar, landFacesVar);
 	glBindVertexArray(VAO[14]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[14]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * ball.myVs.size(), &ball.myVs[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	glUniform1i(glGetUniformLocation(shaderProgram, "type"), 0);
 	glDrawArrays(GL_TRIANGLES, 0, ball.myVs.size());
@@ -648,9 +657,6 @@ int main(int argc, char** argv)
 	obj_parse(flatVerticesConst, flatFacesConst, "objs/flat_bumpy_plane.obj");
 	obj_parse(ballVertices, ballFaces, "objs/ball.obj");
 
-
-	SetupBall(ball, ballVertices);
-
 	landVerticesVar = gentleSlopeVerticesConst;
 	landFacesVar = gentleSlopeFacesConst;
 	flatVerticesVar = flatVerticesConst;
@@ -663,6 +669,8 @@ int main(int argc, char** argv)
 	GLuint waterTextureOpaque = setup_texture("textures/water_opaque.png");
 	GLuint ballTexture = setup_texture("textures/ball_texture.png");
 	GLuint moonTexture = setup_texture("textures/moon.png");
+
+	SetupBall(ball, ballVertices, landVerticesVar, landFacesVar);
 
 	unsigned int VAO[16];
 	glGenVertexArrays(16, VAO);
@@ -787,7 +795,7 @@ int main(int argc, char** argv)
 	//Ball
 	glBindVertexArray(VAO[14]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[14]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)* ballVertices.size(), &ballVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)* ball.myVs.size(), &ball.myVs[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));

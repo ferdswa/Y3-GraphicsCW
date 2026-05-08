@@ -4,7 +4,6 @@
 
 char* read_file(const char* filename)
 {
-	printf("open");
 	FILE* f;
 	fopen_s(&f, filename, "rb");
 	if (f == NULL)
@@ -19,6 +18,5 @@ char* read_file(const char* filename)
 	if (ret != size)
 		return NULL;
 	bfr[size] = '\0';
-	printf("close");
 	return bfr;
 }
