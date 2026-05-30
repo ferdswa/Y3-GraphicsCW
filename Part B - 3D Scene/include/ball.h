@@ -97,23 +97,23 @@ void Kick(SBall& ball, glm::vec3 forceVec, std::vector<Vertex> landVertices, std
 		double cFrameTime = glfwGetTime();
 		double frameTimeDif = double(cFrameTime - lastFrameTime);
 		
-		if (abs(initSpeedX) > 0.025) {
+		if (abs(initSpeedX) > 0) {
 			if (initSpeedX > 0) {
-				initSpeedX -= 0.000025;
+				initSpeedX -= 0.001;
 			}
 			else {
-				initSpeedX += 0.000025;
+				initSpeedX += 0.001;
 			}
 		}
 		else {
 			initSpeedX = 0;
 		}
-		if(abs(initSpeedZ) > 0.025) {
+		if(abs(initSpeedZ) > 0) {
 			if (initSpeedZ > 0) {
-				initSpeedZ -= 0.000025;
+				initSpeedZ -= 0.001;
 			}
 			else {
-				initSpeedZ += 0.000025;
+				initSpeedZ += 0.001;
 			}
 		}
 		else {
