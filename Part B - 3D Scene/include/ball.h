@@ -82,6 +82,8 @@ void Drop(SBall& ball, std::vector<Vertex> landVertices, std::vector<Face> landF
 	}
 }
 
+
+//ONLY DO THIS ONCE! This gets triggered multiple times because of the high fps causing the weird stuff with teleporting ball
 void Kick(SBall& ball, glm::vec3 forceVec, std::vector<Vertex> landVertices, std::vector<Face> landFaces) {
 	forceVec = glm::normalize(forceVec);
 	double initSpeedX = forceVec.x;
